@@ -9,5 +9,15 @@
       "endOfLine" : "lf",
       "indentSize" : 2
     }
+  }, {
+    "module" : "license-apache",
+    "date" : "2025-07-26T16:44:24.708512188Z",
+    "properties" : {
+      "projectName" : "seed4j.github.io",
+      "baseName" : "seed4website",
+      "nodePackageManager" : "npm",
+      "endOfLine" : "lf",
+      "indentSize" : 2
+    }
   } ]
 }

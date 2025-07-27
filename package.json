@@ -4,23 +4,23 @@
   "private": true,
   "description": "seed4j.github.io",
   "license": "UNLICENSED",
-  "packageManager": "npm@11.4.2",
-  "engines": {
-    "node": ">=22"
-  },
   "scripts": {
+    "prepare": "husky",
     "prettier:check": "prettier --check .",
-    "prettier:format": "prettier --write .",
-    "prepare": "husky"
+    "prettier:format": "prettier --write ."
   },
   "devDependencies": {
     "@prettier/plugin-xml": "3.4.2",
+    "husky": "9.1.7",
+    "lint-staged": "16.1.2",
     "prettier": "3.6.2",
     "prettier-plugin-gherkin": "3.1.2",
     "prettier-plugin-java": "2.7.3",
     "prettier-plugin-organize-imports": "4.2.0",
-    "prettier-plugin-packagejson": "2.5.19",
-    "husky": "9.1.7",
-    "lint-staged": "16.1.2"
+    "prettier-plugin-packagejson": "2.5.19"
+  },
+  "packageManager": "npm@11.4.2",
+  "engines": {
+    "node": ">=22"
   }
 }

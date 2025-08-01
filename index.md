@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: 'Seed4J'
+  name: 'Seed4J 🌱'
   text: 'Modular code generator with clean architecture'
   tagline: Plant the right seed, build on strong roots.
   actions:

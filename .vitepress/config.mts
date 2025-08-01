@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  base: '/',
   title: 'Seed4J',
   description: 'Modular code generator with clean architecture',
   themeConfig: {

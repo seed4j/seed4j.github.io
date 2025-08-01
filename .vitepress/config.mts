@@ -22,6 +22,10 @@ export default defineConfig({
       },
     ],
 
-    socialLinks: [{ icon: 'github', link: 'https://github.com/vuejs/vitepress' }],
+    socialLinks: [
+      { icon: 'linkedin', link: 'https://www.linkedin.com/company/seed4j' },
+      { icon: 'x', link: 'https://x.com/seed4j' },
+      { icon: 'github', link: 'https://github.com/seed4j/seed4j' }
+    ],
   },
 });

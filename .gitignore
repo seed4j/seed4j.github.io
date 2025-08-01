@@ -133,3 +133,9 @@ Desktop.ini
 # Sonar
 ######################
 .scannerwork/
+
+######################
+# VitePress
+######################
+.vitepress/cache
+.vitepress/dist

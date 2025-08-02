@@ -1,24 +1,32 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
-  name: 'Seed4J 🌱'
+  name: 'Seed4J'
   text: 'Modular code generator with clean architecture'
-  tagline: Plant the right seed, build on strong roots.
+  tagline: Plant the right seed 🌱 build on strong roots.
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
+      text: Get Started
+      link: /docs/guide/getting-started
     - theme: alt
-      text: API Examples
-      link: /api-examples
+      text: Why Seed4J ?
+      link: /docs/guide/why-seed4j
+    - theme: alt
+      text: Use cases
+      link: /docs/use-cases/
+    - theme: alt
+      text: View on GitHub
+      link: https://github.com/seed4j/seed4j
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - icon: 🧩
+    title: Modular Code Generation
+    details: Generate only what you need, when you need, nothing more.
+  - icon: 🛡️
+    title: Clean & Hexagonal Architecture
+    details: Based on clean code and hexagonal architecture from the ground up.
+  - icon: 🎯
+    title: Designed for Developer Experience
+    details: Fast setup and high-quality code for productive devs who care about craftsmanship.
 ---

@@ -10,7 +10,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/docs/guide/getting-started' },
-      { text: 'Use Cases', link: '/docs/use-cases' },
+      { text: 'Use Cases', link: '/docs/use-cases/list' },
     ],
 
     sidebar: [
@@ -23,7 +23,13 @@ export default defineConfig({
       },
       {
         text: 'Use cases',
-        items: [],
+        items: [
+          { text: 'List', link: '/docs/use-cases/list' },
+          { text: 'Minimal project', link: '/docs/use-cases/minimal-project' },
+          { text: 'Java Kata', link: '/docs/use-cases/java-kata' },
+          { text: 'TypeScript Kata', link: '/docs/use-cases/ts-kata' },
+          { text: 'Java backend project', link: '/docs/use-cases/java-backend' },
+        ],
       },
     ],
 

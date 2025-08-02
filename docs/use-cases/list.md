@@ -9,10 +9,10 @@ Seed4J can be used in different contexts, from quick experiments to real-world a
 - 🧪 [Minimal project scaffolding](./minimal-project.md):  
   Generate basic files like `.gitignore`, `README.md`, and license, ideal to start cleanly.
 
-- 🥋 [Java kata project](./java-kata.md):  
+- 🥋 [Java Kata project](./java-kata.md):  
   Bootstrap a simple Java app with tests, perfect for TDD sessions or coding katas.
 
-- 🥋 [TypeScript kata project](./ts-kata.md):  
+- 🥋 [TypeScript Kata project](./ts-kata.md):  
   Quickly set up a TypeScript-based kata environment with linting and tests.
 
 - 🚀 [Real Java backend project](./java-backend.md):  

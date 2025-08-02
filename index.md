@@ -14,7 +14,7 @@ hero:
       link: /docs/guide/why-seed4j
     - theme: alt
       text: Use cases
-      link: /docs/use-cases/
+      link: /docs/use-cases/list
     - theme: alt
       text: View on GitHub
       link: https://github.com/seed4j/seed4j

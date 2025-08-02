@@ -33,4 +33,7 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/seed4j/seed4j' },
     ],
   },
+  ignoreDeadLinks: [
+    /^http:\/\/localhost/
+  ]
 });

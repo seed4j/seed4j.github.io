@@ -9,23 +9,28 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' },
+      { text: 'Guide', link: '/docs/guide/getting-started' },
+      { text: 'Use Cases', link: '/docs/use-cases' },
     ],
 
     sidebar: [
       {
-        text: 'Examples',
+        text: 'Introduction',
         items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' },
+          { text: 'Why Seed4J', link: '/docs/guide/why-seed4j' },
+          { text: 'Getting Started', link: '/docs/guide/getting-started' },
         ],
+      },
+      {
+        text: 'Use cases',
+        items: [],
       },
     ],
 
     socialLinks: [
       { icon: 'linkedin', link: 'https://www.linkedin.com/company/seed4j' },
       { icon: 'x', link: 'https://x.com/seed4j' },
-      { icon: 'github', link: 'https://github.com/seed4j/seed4j' }
+      { icon: 'github', link: 'https://github.com/seed4j/seed4j' },
     ],
   },
 });

@@ -16,14 +16,10 @@ You will only need to run this command when dependencies change in [package.json
 npm install
 ```
 
-## Local environment
-
-<!-- jhipster-needle-localEnvironment -->
-
 ## Start up
 
-<!-- jhipster-needle-startupCommand -->
+Launch:
 
-## Documentation
-
-<!-- jhipster-needle-documentation -->
+```
+npm run docs:dev
+```

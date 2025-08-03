@@ -1,9 +1,9 @@
 {
-  "name": "seed4website",
+  "name": "seed4jwebsite",
   "version": "0.0.0",
   "private": true,
   "description": "seed4j.github.io",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "scripts": {
     "docs:build": "vitepress build",
     "docs:dev": "vitepress dev",

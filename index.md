@@ -21,7 +21,7 @@ hero:
 
 features:
   - icon: 🧩
-    title: Modular Code Generation
+    title: Modular Code Generator
     details: Generate only what you need, when you need, nothing more.
   - icon: 🛡️
     title: Clean & Hexagonal Architecture

@@ -5,7 +5,7 @@
       "date": "2025-07-26T16:44:24.562299160Z",
       "properties": {
         "projectName": "seed4j.github.io",
-        "baseName": "seed4website",
+        "baseName": "seed4jwebsite",
         "nodePackageManager": "npm",
         "endOfLine": "lf",
         "indentSize": 2
@@ -16,7 +16,7 @@
       "date": "2025-07-26T16:44:24.708512188Z",
       "properties": {
         "projectName": "seed4j.github.io",
-        "baseName": "seed4website",
+        "baseName": "seed4jwebsite",
         "nodePackageManager": "npm",
         "endOfLine": "lf",
         "indentSize": 2
@@ -27,7 +27,18 @@
       "date": "2025-07-26T16:45:16.167052641Z",
       "properties": {
         "projectName": "seed4j.github.io",
-        "baseName": "seed4website",
+        "baseName": "seed4jwebsite",
+        "nodePackageManager": "npm",
+        "endOfLine": "lf",
+        "indentSize": 2
+      }
+    },
+    {
+      "module": "renovate",
+      "date": "2025-08-03T09:48:00.374661790Z",
+      "properties": {
+        "projectName": "seed4j.github.io",
+        "baseName": "seed4jwebsite",
         "nodePackageManager": "npm",
         "endOfLine": "lf",
         "indentSize": 2

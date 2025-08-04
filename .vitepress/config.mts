@@ -6,13 +6,12 @@ export default defineConfig({
   title: 'Seed4J',
   description: 'Modular code generator with clean architecture',
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
+    logo: '/favicon.svg',
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/docs/guide/getting-started' },
       { text: 'Use Cases', link: '/docs/use-cases/list' },
     ],
-
     sidebar: [
       {
         text: 'Introduction',
@@ -41,6 +40,7 @@ export default defineConfig({
   },
   ignoreDeadLinks: [/^http:\/\/localhost/],
   head: [
+    ['link', { rel: 'icon', href: '/favicon.svg' }],
     ['script', { src: 'https://www.googletagmanager.com/gtag/js?id=G-DR0S8XWFFC', async: '' }],
     [
       'script',

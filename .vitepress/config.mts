@@ -52,5 +52,16 @@ export default defineConfig({
       gtag('config', 'G-DR0S8XWFFC');
     `,
     ],
+    [
+      'script',
+      { type: 'application/ld+json' },
+      JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        url: 'https://seed4j.com',
+        logo: 'https://seed4j.com/seed4j_logo.svg',
+        name: 'Seed4J',
+      }),
+    ],
   ],
 });

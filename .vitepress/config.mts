@@ -59,7 +59,7 @@ export default defineConfig({
         '@context': 'https://schema.org',
         '@type': 'Organization',
         url: 'https://seed4j.com',
-        logo: 'https://seed4j.com/seed4j_logo.svg',
+        logo: 'https://seed4j.com/seed4j_logo.png',
         name: 'Seed4J',
       }),
     ],

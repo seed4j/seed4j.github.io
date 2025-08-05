@@ -1,5 +1,5 @@
 ---
-title: Java Backend | Use Cases
+title: Sponsors | Sponsors
 ---
 
 Growth in Progress 🌱

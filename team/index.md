@@ -1,5 +1,5 @@
 ---
-title: Java Backend | Use Cases
+title: Team | Team
 ---
 
 Growth in Progress 🌱

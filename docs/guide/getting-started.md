@@ -67,9 +67,9 @@ You should see logs like:
 ```
 ----------------------------------------------------------
   Application 'seed4j' is running!
-  Local: 	    http://localhost:7471/
-  External: 	http://127.0.1.1:7471/
+  Local: 	    http://localhost:1339/
+  External: 	http://127.0.1.1:1339/
 ----------------------------------------------------------
 ```
 
-Now open [http://localhost:7471](http://localhost:7471/) in your browser.
+Now open [http://localhost:1339](http://localhost:1339/) in your browser.

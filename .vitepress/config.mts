@@ -40,7 +40,8 @@ export default defineConfig({
   },
   ignoreDeadLinks: [/^http:\/\/localhost/],
   head: [
-    ['link', { rel: 'icon', href: '/favicon.svg' }],
+    ['link', { rel: 'icon', href: '/favicon.ico', sizes: '48x48' }],
+    ['link', { rel: 'icon', href: '/favicon.svg', sizes: 'any', type: 'image/svg+xml' }],
     ['script', { src: 'https://www.googletagmanager.com/gtag/js?id=G-DR0S8XWFFC', async: '' }],
     [
       'script',
@@ -59,7 +60,7 @@ export default defineConfig({
         '@context': 'https://schema.org',
         '@type': 'Organization',
         url: 'https://seed4j.com',
-        logo: 'https://seed4j.com/seed4j_logo.png',
+        logo: 'https://seed4j.com/logo.png',
         name: 'Seed4J',
         sameAs: [
           'https://github.com/seed4j/seed4j',

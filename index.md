@@ -6,7 +6,7 @@ hero:
   text: 'Modular code generator with clean architecture'
   tagline: Plant the right seed 🌱 build on strong roots.
   image:
-    src: /seed4j_logo.svg
+    src: /logo.svg
     alt: Seed4J
   actions:
     - theme: brand

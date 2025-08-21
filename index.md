@@ -25,11 +25,20 @@ hero:
 features:
   - icon: 🧩
     title: Modular Code Generator
-    details: Generate only what you need, when you need, nothing more.
-  - icon: 🛡️
-    title: Clean & Hexagonal Architecture
-    details: Based on clean code and hexagonal architecture from the ground up.
+    details: Generate exactly what you need, when you need it, nothing more.
+  - icon: 🚀
+    title: Project Starter
+    details: Kickstart Java libraries, coding katas, or full Spring Boot apps with frontend, ready for production.
+  - icon: ☕
+    title: Focused on Java & Spring Boot
+    details: Optimized for Java and Spring Boot projects, yet extensible to other technologies.
   - icon: 🎯
     title: Designed for Developer Experience
-    details: Fast setup and high-quality code for productive devs who care about craftsmanship.
+    details: Fast setup, quality code, and productivity for developers who value craftsmanship.
+  - icon: 🛡️
+    title: Clean & Hexagonal Architecture
+    details: Rooted in clean code, growing with hexagonal architecture.
+  - icon: 🌍
+    title: Open Source & Community-Driven
+    details: Fully open source, welcoming contributions and ideas to grow together.
 ---

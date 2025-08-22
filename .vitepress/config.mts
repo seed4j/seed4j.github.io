@@ -62,11 +62,7 @@ export default defineConfig({
         url: 'https://seed4j.com',
         logo: 'https://seed4j.com/logo.png',
         name: 'Seed4J',
-        sameAs: [
-          'https://github.com/seed4j/seed4j',
-          'https://www.linkedin.com/company/seed4j',
-          'https://x.com/seed4j'
-        ]
+        sameAs: ['https://github.com/seed4j/seed4j', 'https://www.linkedin.com/company/seed4j', 'https://x.com/seed4j'],
       }),
     ],
   ],

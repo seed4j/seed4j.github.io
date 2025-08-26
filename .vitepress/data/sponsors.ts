@@ -4,7 +4,7 @@ interface Sponsor {
   url: string;
 }
 
-const vitestSponsors = {
+const seed4jSponsors = {
   platinum: [],
   gold: [],
   silver: [],
@@ -28,11 +28,11 @@ export const sponsors = [
   {
     tier: 'Bronze sponsors',
     size: 'medium',
-    items: vitestSponsors.bronze,
+    items: seed4jSponsors.bronze,
   },
   {
     tier: 'Backers',
     size: 'medium',
-    items: vitestSponsors.backer,
+    items: seed4jSponsors.backer,
   },
 ];

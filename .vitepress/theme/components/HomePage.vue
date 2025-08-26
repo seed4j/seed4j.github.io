@@ -9,7 +9,7 @@ import { sponsors } from '../../data/sponsors';
       <main class="main">
         <VPHomeSponsors
           v-if="sponsors"
-          message="Seed4J is planted 🌱 by the community, grown with the support of amazing sponsorsData."
+          message="Seed4J is planted 🌱 by the community, grown with the support of amazing sponsors."
           :data="sponsors"
           :actionText="`💚 Sponsor Seed4J`"
           :actionLink="`https://opencollective.com/seed4j`"

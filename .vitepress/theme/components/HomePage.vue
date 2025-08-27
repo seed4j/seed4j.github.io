@@ -18,3 +18,41 @@ import { sponsors } from '../../data/sponsors';
     </div>
   </div>
 </template>
+
+<style scoped>
+:deep(.vp-sponsor-grid-image) {
+  max-width: 100%;
+  filter: none !important;
+  transition: filter 0.25s;
+  border-radius: 50%;
+}
+
+:deep(.dark .vp-sponsor-grid-image) {
+  filter: none !important;
+}
+
+:deep(.vp-sponsor-grid.xmini .vp-sponsor-grid-image) {
+  max-width: 64px;
+  max-height: 35px !important;
+}
+
+:deep(.vp-sponsor-grid.mini .vp-sponsor-grid-image) {
+  max-width: 96px;
+  max-height: 40px !important;
+}
+
+:deep(.vp-sponsor-grid.small .vp-sponsor-grid-image) {
+  max-width: 96px;
+  max-height: 45px !important;
+}
+
+:deep(.vp-sponsor-grid.medium .vp-sponsor-grid-image) {
+  max-width: 120px;
+  max-height: 50px !important;
+}
+
+:deep(.vp-sponsor-grid.big .vp-sponsor-grid-image) {
+  max-width: 192px;
+  max-height: 60px !important;
+}
+</style>

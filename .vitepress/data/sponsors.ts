@@ -19,7 +19,7 @@ const seed4jSponsors = {
     {
       name: 'Colin Damon',
       url: 'https://colindamon.dev',
-      img: 'https://avatars.githubusercontent.com/u/59929679?s=100&v=4',
+      img: 'https://avatars.githubusercontent.com/u/59929679?v=4',
     },
   ],
 } satisfies Record<string, Sponsor[]>;
@@ -27,12 +27,12 @@ const seed4jSponsors = {
 export const sponsors = [
   {
     tier: 'Bronze sponsors',
-    size: 'medium',
+    size: 'mini',
     items: seed4jSponsors.bronze,
   },
   {
     tier: 'Backers',
-    size: 'medium',
+    size: 'xmini',
     items: seed4jSponsors.backer,
   },
 ];

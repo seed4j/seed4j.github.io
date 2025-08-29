@@ -8,12 +8,16 @@
     "docs:build": "vitepress build",
     "docs:dev": "vitepress dev",
     "docs:preview": "vitepress preview",
+    "prefetch-sponsors": "tsx scripts/generateSponsorsFiles.ts",
     "prepare": "husky",
     "prettier:check": "prettier --check .",
-    "prettier:format": "prettier --write ."
+    "prettier:format": "prettier --write .",
+    "test": "vitest --run",
+    "test:watch": "vitest --"
   },
   "devDependencies": {
     "@prettier/plugin-xml": "3.4.2",
+    "@types/node": "24.3.0",
     "husky": "9.1.7",
     "lint-staged": "16.1.2",
     "prettier": "3.6.2",
@@ -21,7 +25,9 @@
     "prettier-plugin-java": "2.7.3",
     "prettier-plugin-organize-imports": "4.2.0",
     "prettier-plugin-packagejson": "2.5.19",
-    "vitepress": "1.6.3"
+    "tsx": "4.20.5",
+    "vitepress": "1.6.3",
+    "vitest": "3.2.4"
   },
   "packageManager": "npm@11.4.2",
   "engines": {

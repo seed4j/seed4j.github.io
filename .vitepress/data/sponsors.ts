@@ -1,4 +1,6 @@
-interface Sponsor {
+import { backer } from './backers';
+
+export interface Sponsor {
   name: string;
   img: string;
   url: string;
@@ -12,14 +14,7 @@ const seed4jSponsors = {
     {
       name: 'Geoffray Gruel',
       url: 'https://www.linkedin.com/in/ggruel/',
-      img: 'https://avatars.githubusercontent.com/u/996402?v=4'
-    },
-  ],
-  backer: [
-    {
-      name: 'Colin Damon',
-      url: 'https://colindamon.dev',
-      img: 'https://avatars.githubusercontent.com/u/59929679?v=4',
+      img: 'https://avatars.githubusercontent.com/u/996402?v=4',
     },
   ],
 } satisfies Record<string, Sponsor[]>;
@@ -33,6 +28,6 @@ export const sponsors = [
   {
     tier: 'Backers',
     size: 'xmini',
-    items: seed4jSponsors.backer,
+    items: backer,
   },
 ];

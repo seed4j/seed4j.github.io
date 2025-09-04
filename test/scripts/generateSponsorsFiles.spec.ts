@@ -1,19 +1,8 @@
 import { promises } from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { generate } from '../../scripts/generateSponsorsFiles';
 import type { Seed4jMember } from '../../scripts/generateSponsorsFiles';
-
-const EXPECTED_BACKERS_CONTENT = `import { Sponsor } from './sponsors';
-
-export const backer: Sponsor[] = [
-  {
-    name: 'Colin DAMON',
-    url: 'https://opencollective.com/colin-damon',
-    img: null,
-  },
-];
-`;
+import { generate } from '../../scripts/generateSponsorsFiles';
 
 global.fetch = vi.fn();
 
@@ -34,10 +23,37 @@ describe('Generate sponsors data', () => {
       json: () => Promise.resolve(seed4jMembersJson),
     };
     (global.fetch as any).mockResolvedValueOnce(mockResponse);
+    const expectedBackersContent = `import { Sponsor } from './sponsors';
+
+export const backer: Sponsor[] = [
+  {
+    name: 'Colin DAMON',
+    url: 'https://opencollective.com/colin-damon',
+    img: null,
+  },
+];
+`;
 
     await generate();
 
-    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/backers.ts', EXPECTED_BACKERS_CONTENT, 'utf8');
+    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/backers.ts', expectedBackersContent, 'utf8');
+  });
+
+  it('should generate empty backers when does not have sponsors for its specific tier', async () => {
+    const seed4jMembersWithoutBeckersTierJson: Seed4jMember[] = seed4jMembersJson.filter(member => member.tier !== 'backer');
+    const mockResponse = {
+      ok: true,
+      json: () => Promise.resolve(seed4jMembersWithoutBeckersTierJson),
+    };
+    (global.fetch as any).mockResolvedValueOnce(mockResponse);
+    const expectedBackersContent = `import { Sponsor } from './sponsors';
+
+export const backer: Sponsor[] = [];
+`;
+
+    await generate();
+
+    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/backers.ts', expectedBackersContent, 'utf8');
   });
 
   const seed4jMembersJson: Seed4jMember[] = [

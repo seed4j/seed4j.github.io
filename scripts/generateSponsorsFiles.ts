@@ -31,9 +31,7 @@ export type Seed4jMember = {
 
 const BACKERS_FILE_TEMPLATE = `import { Sponsor } from './sponsors';
 
-export const backer: Sponsor[] = [
-  {{BACKERS_CONTENT}}
-];
+export const backer: Sponsor[] = [{{BACKERS_CONTENT}}];
 `;
 
 export async function generate(): Promise<void> {
@@ -50,11 +48,13 @@ export async function generate(): Promise<void> {
 
   const backersContent = backers
     .map(
-      backer => `{
+      backer => `
+  {
     name: '${backer.name}',
     url: '${backer.url}',
     img: ${backer.img ? `'${backer.img}'` : 'null'},
-  },`,
+  },
+`,
     )
     .join('\n');
   const backersFile = BACKERS_FILE_TEMPLATE.replace('{{BACKERS_CONTENT}}', backersContent);

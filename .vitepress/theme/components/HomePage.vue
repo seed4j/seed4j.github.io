@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { VPHomeSponsors } from 'vitepress/theme';
-import { sponsors } from '../../data/sponsors';
+import { sponsors } from '../../data/sponsors/sponsors';
 </script>
 
 <template>

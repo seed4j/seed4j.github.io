@@ -41,7 +41,7 @@ export const backer: Sponsor[] = [
 
     await generate();
 
-    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/backers.ts', expectedBackersContent, 'utf8');
+    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/sponsors/backers.ts', expectedBackersContent, 'utf8');
   });
 
   it('should generate empty backers when does not have sponsors for its specific tier', async () => {
@@ -58,7 +58,7 @@ export const backer: Sponsor[] = [];
 
     await generate();
 
-    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/backers.ts', expectedBackersContent, 'utf8');
+    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/sponsors/backers.ts', expectedBackersContent, 'utf8');
   });
 
   it('should give preference to use the user website instead of the open collective profile url', async () => {
@@ -104,7 +104,7 @@ export const backer: Sponsor[] = [
 
     await generate();
 
-    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/backers.ts', expectedBackersContent, 'utf8');
+    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/sponsors/backers.ts', expectedBackersContent, 'utf8');
   });
 
   const seed4jMembersJson: Seed4jMember[] = [

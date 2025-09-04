@@ -62,7 +62,7 @@ export async function generate(): Promise<void> {
       : '';
   const backersFile = BACKERS_FILE_TEMPLATE.replace('{{BACKERS_CONTENT}}', backersContent);
 
-  await promises.writeFile('.vitepress/data/backers.ts', backersFile, 'utf8');
+  await promises.writeFile('.vitepress/data/sponsors/backers.ts', backersFile, 'utf8');
 }
 
 generate().catch(console.error);

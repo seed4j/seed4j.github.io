@@ -1,6 +1,7 @@
 import { promises } from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { Buffer } from 'buffer';
 import type { Seed4jMember } from '../../scripts/generateSponsorsFiles';
 import { generate } from '../../scripts/generateSponsorsFiles';
 
@@ -9,6 +10,7 @@ global.fetch = vi.fn();
 vi.mock('node:fs', () => ({
   promises: {
     writeFile: vi.fn(),
+    mkdir: vi.fn(),
   },
 }));
 
@@ -18,23 +20,33 @@ describe('Generate sponsors data', () => {
   });
 
   it('should generate backers data from open collective api', async () => {
-    const mockResponse = {
-      ok: true,
-      json: () => Promise.resolve(seed4jMembersJson),
-    };
-    (global.fetch as any).mockResolvedValueOnce(mockResponse);
+    (global.fetch as any).mockImplementation((url: string) => {
+      if (url === 'https://opencollective.com/seed4j/members.json') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(seed4jMembersJson),
+        });
+      }
+      if (url === 'https://www.gravatar.com/avatar/11223344556677889900aabbccddeeff?default=404') {
+        return Promise.resolve({
+          ok: true,
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(16)),
+        });
+      }
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
     const expectedBackersContent = `import { Sponsor } from './sponsors';
 
 export const backer: Sponsor[] = [
   {
     name: 'Colin DAMON',
     url: 'https://opencollective.com/colin-damon',
-    img: null,
+    img: '/sponsors/colin-damon.png',
   },
   {
     name: 'Jane Doe',
     url: 'https://opencollective.com/jane-doe',
-    img: null,
+    img: '/sponsors/jane-doe.png',
   },
 ];
 `;
@@ -46,11 +58,21 @@ export const backer: Sponsor[] = [
 
   it('should generate empty backers when does not have sponsors for its specific tier', async () => {
     const seed4jMembersWithoutBeckersTierJson: Seed4jMember[] = seed4jMembersJson.filter(member => member.tier !== 'backer');
-    const mockResponse = {
-      ok: true,
-      json: () => Promise.resolve(seed4jMembersWithoutBeckersTierJson),
-    };
-    (global.fetch as any).mockResolvedValueOnce(mockResponse);
+    (global.fetch as any).mockImplementation((url: string) => {
+      if (url === 'https://opencollective.com/seed4j/members.json') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(seed4jMembersWithoutBeckersTierJson),
+        });
+      }
+      if (url === 'https://www.gravatar.com/avatar/11223344556677889900aabbccddeeff?default=404') {
+        return Promise.resolve({
+          ok: true,
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(16)),
+        });
+      }
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
     const expectedBackersContent = `import { Sponsor } from './sponsors';
 
 export const backer: Sponsor[] = [];
@@ -86,18 +108,28 @@ export const backer: Sponsor[] = [];
         website: 'https://alexjones.dev',
       },
     ];
-    const mockResponse = {
-      ok: true,
-      json: () => Promise.resolve(seed4jMembersWithWebsiteJson),
-    };
-    (global.fetch as any).mockResolvedValueOnce(mockResponse);
+    (global.fetch as any).mockImplementation((url: string) => {
+      if (url === 'https://opencollective.com/seed4j/members.json') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(seed4jMembersWithWebsiteJson),
+        });
+      }
+      if (url === 'https://www.gravatar.com/avatar/11223344556677889900aabbccddeeff?default=404') {
+        return Promise.resolve({
+          ok: true,
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(16)),
+        });
+      }
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
     const expectedBackersContent = `import { Sponsor } from './sponsors';
 
 export const backer: Sponsor[] = [
   {
     name: 'Alex Jones',
     url: 'https://alexjones.dev',
-    img: null,
+    img: '/sponsors/alex-jones.png',
   },
 ];
 `;
@@ -105,6 +137,63 @@ export const backer: Sponsor[] = [
     await generate();
 
     expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/sponsors/backers.ts', expectedBackersContent, 'utf8');
+  });
+
+  it('should download backers image from open collective api', async () => {
+    const seed4jMembersWithImageJson: Seed4jMember[] = [
+      {
+        MemberId: 721003,
+        createdAt: '2025-09-04 13:00',
+        type: 'USER',
+        role: 'BACKER',
+        tier: 'backer',
+        isActive: true,
+        totalAmountDonated: 20,
+        currency: 'USD',
+        lastTransactionAt: '2025-09-04 13:00',
+        lastTransactionAmount: 20,
+        profile: 'https://opencollective.com/sam-taylor',
+        name: 'Sam Taylor',
+        company: null,
+        description: 'Avid supporter of community-driven projects.',
+        image: 'https://www.gravatar.com/avatar/11223344556677889900aabbccddeeff?default=404',
+        email: 'sam.taylor@example.com',
+        newsletterOptIn: true,
+        twitter: 'https://twitter.com/samtaylor',
+        github: 'https://github.com/samtaylor',
+        website: 'https://samtaylor.dev',
+      },
+    ];
+    (global.fetch as any).mockImplementation((url: string) => {
+      if (url === 'https://opencollective.com/seed4j/members.json') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(seed4jMembersWithImageJson),
+        });
+      }
+      if (url === 'https://www.gravatar.com/avatar/11223344556677889900aabbccddeeff?default=404') {
+        return Promise.resolve({
+          ok: true,
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(16)),
+        });
+      }
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
+    const expectedBackersContent = `import { Sponsor } from './sponsors';
+
+export const backer: Sponsor[] = [
+  {
+    name: 'Sam Taylor',
+    url: 'https://samtaylor.dev',
+    img: '/sponsors/sam-taylor.png',
+  },
+];
+`;
+
+    await generate();
+
+    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/sponsors/backers.ts', expectedBackersContent, 'utf8');
+    expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/sam-taylor.png', Buffer.from(new ArrayBuffer(16)));
   });
 
   const seed4jMembersJson: Seed4jMember[] = [

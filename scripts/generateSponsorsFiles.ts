@@ -39,24 +39,27 @@ export async function generate(): Promise<void> {
   const seed4jMembersJson: Seed4jMember[] = await response.json();
 
   const backers = seed4jMembersJson
-    .filter(member => member.type === 'USER' && member.role === 'BACKER' && member.tier === 'backer')
+    .filter(member => member.type === 'USER' && member.role === 'BACKER' && member.tier === 'backer' && member.isActive)
     .map(member => ({
       name: member.name,
-      url: member.profile,
+      url: member.website ?? member.profile,
       img: member.image ?? null,
     }));
 
-  const backersContent = backers
-    .map(
-      backer => `
+  const backersContent =
+    backers.length > 0
+      ? backers
+          .map(
+            backer => `
   {
     name: '${backer.name}',
     url: '${backer.url}',
     img: ${backer.img ? `'${backer.img}'` : 'null'},
-  },
-`,
-    )
-    .join('\n');
+  },`,
+          )
+          .join('')
+          .concat('\n')
+      : '';
   const backersFile = BACKERS_FILE_TEMPLATE.replace('{{BACKERS_CONTENT}}', backersContent);
 
   await promises.writeFile('.vitepress/data/backers.ts', backersFile, 'utf8');

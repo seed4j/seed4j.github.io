@@ -31,6 +31,11 @@ export const backer: Sponsor[] = [
     url: 'https://opencollective.com/colin-damon',
     img: null,
   },
+  {
+    name: 'Jane Doe',
+    url: 'https://opencollective.com/jane-doe',
+    img: null,
+  },
 ];
 `;
 
@@ -49,6 +54,52 @@ export const backer: Sponsor[] = [
     const expectedBackersContent = `import { Sponsor } from './sponsors';
 
 export const backer: Sponsor[] = [];
+`;
+
+    await generate();
+
+    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/backers.ts', expectedBackersContent, 'utf8');
+  });
+
+  it('should give preference to use the user website instead of the open collective profile url', async () => {
+    const seed4jMembersWithWebsiteJson: Seed4jMember[] = [
+      {
+        MemberId: 721002,
+        createdAt: '2025-09-04 12:00',
+        type: 'USER',
+        role: 'BACKER',
+        tier: 'backer',
+        isActive: true,
+        totalAmountDonated: 50,
+        currency: 'USD',
+        lastTransactionAt: '2025-09-04 12:00',
+        lastTransactionAmount: 50,
+        profile: 'https://opencollective.com/alex-jones',
+        name: 'Alex Jones',
+        company: null,
+        description: 'Supporter of open source initiatives.',
+        image: null,
+        email: 'alex.jones@example.com',
+        newsletterOptIn: false,
+        twitter: 'https://twitter.com/alexjones',
+        github: 'https://github.com/alexjones',
+        website: 'https://alexjones.dev',
+      },
+    ];
+    const mockResponse = {
+      ok: true,
+      json: () => Promise.resolve(seed4jMembersWithWebsiteJson),
+    };
+    (global.fetch as any).mockResolvedValueOnce(mockResponse);
+    const expectedBackersContent = `import { Sponsor } from './sponsors';
+
+export const backer: Sponsor[] = [
+  {
+    name: 'Alex Jones',
+    url: 'https://alexjones.dev',
+    img: null,
+  },
+];
 `;
 
     await generate();
@@ -137,6 +188,50 @@ export const backer: Sponsor[] = [];
       twitter: null,
       github: null,
       website: null,
+    },
+    {
+      MemberId: 721000,
+      createdAt: '2025-09-04 10:00',
+      type: 'USER',
+      role: 'BACKER',
+      tier: 'backer',
+      isActive: true,
+      totalAmountDonated: 10,
+      currency: 'USD',
+      lastTransactionAt: '2025-09-04 10:00',
+      lastTransactionAmount: 10,
+      profile: 'https://opencollective.com/jane-doe',
+      name: 'Jane Doe',
+      company: 'Tech Innovations Inc.',
+      description: 'Enthusiastic supporter of open source projects.',
+      image: null,
+      email: 'jane.doe@example.com',
+      newsletterOptIn: true,
+      twitter: 'https://twitter.com/janedoe',
+      github: 'https://github.com/janedoe',
+      website: null,
+    },
+    {
+      MemberId: 721001,
+      createdAt: '2025-09-04 11:00',
+      type: 'USER',
+      role: 'BACKER',
+      tier: 'backer',
+      isActive: false,
+      totalAmountDonated: 10,
+      currency: 'USD',
+      lastTransactionAt: '2025-09-04 11:00',
+      lastTransactionAmount: 10,
+      profile: 'https://opencollective.com/john-smith',
+      name: 'John Smith',
+      company: 'Innovatech Solutions',
+      description: 'Passionate about supporting innovative tech solutions.',
+      image: 'https://www.gravatar.com/avatar/abcdef1234567890abcdef1234567890?default=404',
+      email: 'john.smith@example.com',
+      newsletterOptIn: true,
+      twitter: 'https://twitter.com/johnsmith',
+      github: 'https://github.com/johnsmith',
+      website: 'https://johnsmith.com',
     },
     {
       MemberId: 719395,

@@ -4,6 +4,7 @@
   "private": true,
   "description": "seed4j.github.io",
   "license": "Apache-2.0",
+  "type": "module",
   "scripts": {
     "docs:build": "vitepress build",
     "docs:dev": "vitepress dev",
@@ -13,11 +14,14 @@
     "prettier:check": "prettier --check .",
     "prettier:format": "prettier --write .",
     "test": "vitest --run",
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:watch": "vitest --coverage",
     "test:watch": "vitest --"
   },
   "devDependencies": {
     "@prettier/plugin-xml": "3.4.2",
     "@types/node": "24.3.0",
+    "@vitest/coverage-v8": "3.2.4",
     "husky": "9.1.7",
     "lint-staged": "16.1.2",
     "prettier": "3.6.2",

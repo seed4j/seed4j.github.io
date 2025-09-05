@@ -1,4 +1,4 @@
-import { promises as nodePromises } from 'node:fs';
+import { existsSync, promises as nodePromises } from 'node:fs';
 import type { Sponsor } from '../.vitepress/data/sponsors/sponsors';
 
 type OpenCollectiveTier = (typeof OPEN_COLLECTIVE_TIERS)[number];
@@ -35,6 +35,7 @@ type ImageDownloadInfo = {
 };
 
 const SPONSORS_DIR = 'public/sponsors';
+const PLACEHOLDER_IMAGE_PATH = 'public/logo.png';
 const BACKERS_FILE_PATH = '.vitepress/data/sponsors/backers.ts';
 const OPEN_COLLECTIVE_API_URL = 'https://opencollective.com/seed4j/members.json';
 const IMAGE_EXTENSION = '.png';
@@ -52,8 +53,7 @@ export async function generate(): Promise<void> {
     const imageDownloadInfos = mapToImageDownloadInfo(activeBackers);
 
     const backersFileContent = generateBackersFileContent(sponsors);
-    await nodePromises.writeFile(BACKERS_FILE_PATH, backersFileContent, 'utf8');
-    return await downloadAllBackerImages(imageDownloadInfos);
+    return nodePromises.writeFile(BACKERS_FILE_PATH, backersFileContent, 'utf8').then(() => downloadAllBackerImages(imageDownloadInfos));
   });
 }
 
@@ -124,9 +124,11 @@ const downloadBackerImage = async (imageInfo: ImageDownloadInfo): Promise<void> 
 const usePlaceHolderImage = async (filename: string) => {
   const filepath = `${SPONSORS_DIR}/${filename}`;
 
+  if (existsSync(filepath)) return Promise.resolve();
+
   return nodePromises
     .mkdir(SPONSORS_DIR, { recursive: true })
-    .then(() => nodePromises.readFile('public/logo.png').then(image => nodePromises.writeFile(filepath, image)));
+    .then(() => nodePromises.readFile(PLACEHOLDER_IMAGE_PATH).then(image => nodePromises.writeFile(filepath, image)));
 };
 
 generate().catch(error => console.error(error));

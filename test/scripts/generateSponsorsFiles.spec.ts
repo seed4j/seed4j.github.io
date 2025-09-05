@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { promises } from 'node:fs';
+import { existsSync, promises } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import type { Seed4jMember } from '../../scripts/generateSponsorsFiles';
 import { generate } from '../../scripts/generateSponsorsFiles';
@@ -12,6 +12,7 @@ vi.mock('node:fs', () => ({
     mkdir: vi.fn().mockResolvedValue(undefined),
     readFile: vi.fn(),
   },
+  existsSync: vi.fn(),
 }));
 
 describe('Generate sponsors data', () => {
@@ -165,13 +166,51 @@ describe('Generate sponsors data', () => {
     expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/jordan-lee.png', Buffer.from(new ArrayBuffer(16)));
   });
 
+  it('should prevent overwriting an existing user image with seed4j logo even if the user does not have an image from the open collective api', async () => {
+    setupMocks();
+    const seed4jMembersWithoutImageJson: Seed4jMember[] = [
+      {
+        MemberId: 721005,
+        createdAt: '2025-09-05 10:00',
+        type: 'USER',
+        role: 'BACKER',
+        tier: 'backer',
+        isActive: true,
+        totalAmountDonated: 40,
+        currency: 'USD',
+        lastTransactionAt: '2025-09-05 10:00',
+        lastTransactionAmount: 10,
+        profile: 'https://opencollective.com/morgan-smith',
+        name: 'Morgan Smith',
+        company: null,
+        description: 'Passionate about contributing to tech communities.',
+        image: null,
+        email: 'morgan.smith@example.com',
+        newsletterOptIn: true,
+        twitter: null,
+        github: null,
+        website: null,
+      },
+    ];
+    (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithoutImageJson));
+
+    await generate();
+
+    expect(promises.writeFile).not.toHaveBeenCalledWith('public/sponsors/morgan-smith.png', Buffer.from(new ArrayBuffer(16)));
+  });
+
   const setupMocks = () => {
     vi.clearAllMocks();
+
     (promises.readFile as any).mockImplementation((path: string) => {
       if (path === 'public/logo.png') {
         return Promise.resolve(Buffer.from(new ArrayBuffer(16)));
       }
       return Promise.reject(new Error(`Unexpected file path: ${path}`));
+    });
+
+    (existsSync as any).mockImplementation((path: string) => {
+      return path === 'public/sponsors/morgan-smith.png';
     });
   };
 

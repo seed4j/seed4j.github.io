@@ -71,7 +71,7 @@ const mapToSponsor = (members: Seed4jMember[]): Sponsor[] =>
 
 const mapToImageDownloadInfo = (members: Seed4jMember[]): ImageDownloadInfo[] =>
   members.map(member => {
-    const profileUsername = member.profile.split('/').pop() || 'unknown';
+    const profileUsername = member.profile.split('/').pop();
     return {
       imageUrl: member.image,
       profile: member.profile,
@@ -80,7 +80,7 @@ const mapToImageDownloadInfo = (members: Seed4jMember[]): ImageDownloadInfo[] =>
   });
 
 const imageFilePath = (profile: string): string => {
-  const profileUsername = profile.split('/').pop() || 'unknown';
+  const profileUsername = profile.split('/').pop();
   return `/sponsors/${profileUsername}${IMAGE_EXTENSION}`;
 };
 

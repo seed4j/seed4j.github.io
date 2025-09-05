@@ -1,6 +1,6 @@
 import { backer } from './backers';
 
-export interface Sponsor {
+export type Sponsor = {
   name: string;
   img: string;
   url: string;

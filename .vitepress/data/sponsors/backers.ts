@@ -1,4 +1,4 @@
-import { Sponsor } from './sponsors';
+import type { Sponsor } from './sponsors';
 
 export const backer: Sponsor[] = [
   {

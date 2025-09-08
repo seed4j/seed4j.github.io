@@ -228,7 +228,13 @@ describe('Generate sponsors data', () => {
     expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/sam-taylor.png', Buffer.from(new ArrayBuffer(16)));
   });
 
-  it('should use the seed4j logo as a placeholder for open collective members without an image', async () => {
+  it.each<{
+    sponsorType: string;
+    tier: OpenCollectiveTier;
+  }>([
+    { sponsorType: 'backers', tier: 'backer' },
+    { sponsorType: 'bronzes', tier: 'Bronze sponsor' },
+  ])('should use the seed4j logo as a placeholder for open collective members without an image for $sponsorType', async ({ tier }) => {
     setupMocks();
     const seed4jMembersWithoutImageJson: Seed4jMember[] = [
       {
@@ -236,7 +242,7 @@ describe('Generate sponsors data', () => {
         createdAt: '2025-09-04 14:00',
         type: 'USER',
         role: 'BACKER',
-        tier: 'backer',
+        tier,
         isActive: true,
         totalAmountDonated: 30,
         currency: 'USD',

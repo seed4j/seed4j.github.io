@@ -168,7 +168,25 @@ describe('Generate sponsors data', () => {
     },
   );
 
-  it('should download image from open collective api', async () => {
+  it.each<{
+    sponsorType: string;
+    tier: OpenCollectiveTier;
+    filePath: string;
+    contentGenerator: (data: any[]) => string;
+  }>([
+    {
+      sponsorType: 'backers',
+      tier: 'backer',
+      filePath: '.vitepress/data/sponsors/backers.ts',
+      contentGenerator: createExpectedBackersContent,
+    },
+    {
+      sponsorType: 'bronzes',
+      tier: 'Bronze sponsor',
+      filePath: '.vitepress/data/sponsors/bronzes.ts',
+      contentGenerator: createExpectedBronzesContent,
+    },
+  ])('should download image from open collective api for $sponsorType', async ({ tier, filePath, contentGenerator }) => {
     setupMocks();
     const seed4jMembersWithImageJson: Seed4jMember[] = [
       {
@@ -176,7 +194,7 @@ describe('Generate sponsors data', () => {
         createdAt: '2025-09-04 13:00',
         type: 'USER',
         role: 'BACKER',
-        tier: 'backer',
+        tier,
         isActive: true,
         totalAmountDonated: 20,
         currency: 'USD',
@@ -196,7 +214,7 @@ describe('Generate sponsors data', () => {
     ];
     (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithImageJson));
 
-    const expectedBackersContent = createExpectedBackersContent([
+    const expectedContent = contentGenerator([
       {
         name: 'Sam Taylor',
         url: 'https://samtaylor.dev',
@@ -206,7 +224,7 @@ describe('Generate sponsors data', () => {
 
     await generate();
 
-    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/sponsors/backers.ts', expectedBackersContent, 'utf8');
+    expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
     expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/sam-taylor.png', Buffer.from(new ArrayBuffer(16)));
   });
 
@@ -240,7 +258,7 @@ describe('Generate sponsors data', () => {
 
     await generate();
 
-    expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/jordan-lee.png', Buffer.from(new ArrayBuffer(16)));
+    expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/jordan-lee.png', Buffer.from(new ArrayBuffer(26)));
   });
 
   it('should prevent overwriting an existing user image with seed4j logo even if the user does not have an image from the open collective api', async () => {
@@ -281,7 +299,7 @@ describe('Generate sponsors data', () => {
 
     (promises.readFile as any).mockImplementation((path: string) => {
       if (path === 'public/logo.png') {
-        return Promise.resolve(Buffer.from(new ArrayBuffer(16)));
+        return Promise.resolve(Buffer.from(new ArrayBuffer(26)));
       }
       return Promise.reject(new Error(`Unexpected file path: ${path}`));
     });

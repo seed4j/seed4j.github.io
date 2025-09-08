@@ -16,30 +16,6 @@ vi.mock('node:fs', () => ({
 }));
 
 describe('Generate sponsors data', () => {
-  it('should generate backers data from open collective api', async () => {
-    setupMocks();
-    (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersJson));
-
-    const expectedBackersContent = createExpectedBackersContent([
-      {
-        name: 'Colin DAMON',
-        url: 'https://opencollective.com/colin-damon',
-        img: '/sponsors/colin-damon.png',
-      },
-      {
-        name: 'Jane Doe',
-        url: 'https://opencollective.com/jane-doe',
-        img: '/sponsors/jane-doe.png',
-      },
-    ]);
-
-    await generate();
-
-    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/sponsors/backers.ts', expectedBackersContent, 'utf8');
-  });
-
-
-
   const createExpectedBackersContent = (backers: Array<{ name: string; url: string; img: string }>) => {
     const backersArray = backers
       .map(backer => `  {\n    name: '${backer.name}',\n    url: '${backer.url}',\n    img: '${backer.img}',\n  }`)
@@ -61,6 +37,46 @@ describe('Generate sponsors data', () => {
 
     return `import type { Sponsor } from './sponsors';\n\nexport const bronze: Sponsor[] = [${bronzes.length > 0 ? '\n' + bronzesArray + ',\n' : ''}];\n`;
   };
+
+  it.each([
+    {
+      sponsorType: 'backers',
+      filePath: '.vitepress/data/sponsors/backers.ts',
+      contentGenerator: createExpectedBackersContent,
+      expectedData: [
+        {
+          name: 'Colin DAMON',
+          url: 'https://opencollective.com/colin-damon',
+          img: '/sponsors/colin-damon.png',
+        },
+        {
+          name: 'Jane Doe',
+          url: 'https://opencollective.com/jane-doe',
+          img: '/sponsors/jane-doe.png',
+        },
+      ],
+    },
+    {
+      sponsorType: 'bronzes',
+      filePath: '.vitepress/data/sponsors/bronzes.ts',
+      contentGenerator: createExpectedBronzesContent,
+      expectedData: [
+        {
+          name: 'Geoffray Gruel',
+          url: 'https://opencollective.com/guest-b627ebd3',
+          img: '/sponsors/guest-b627ebd3.png',
+        },
+      ],
+    },
+  ])('should generate $sponsorType data from open collective api', async ({ filePath, contentGenerator, expectedData }) => {
+    setupMocks();
+    (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersJson));
+    const expectedContent = contentGenerator(expectedData);
+
+    await generate();
+
+    expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
+  });
 
   it.each([
     {

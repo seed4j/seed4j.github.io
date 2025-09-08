@@ -267,38 +267,47 @@ describe('Generate sponsors data', () => {
     expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/jordan-lee.png', Buffer.from(new ArrayBuffer(26)));
   });
 
-  it('should prevent overwriting an existing user image with seed4j logo even if the user does not have an image from the open collective api', async () => {
-    setupMocks();
-    const seed4jMembersWithoutImageJson: Seed4jMember[] = [
-      {
-        MemberId: 721005,
-        createdAt: '2025-09-05 10:00',
-        type: 'USER',
-        role: 'BACKER',
-        tier: 'backer',
-        isActive: true,
-        totalAmountDonated: 40,
-        currency: 'USD',
-        lastTransactionAt: '2025-09-05 10:00',
-        lastTransactionAmount: 10,
-        profile: 'https://opencollective.com/morgan-smith',
-        name: 'Morgan Smith',
-        company: null,
-        description: 'Passionate about contributing to tech communities.',
-        image: null,
-        email: 'morgan.smith@example.com',
-        newsletterOptIn: true,
-        twitter: null,
-        github: null,
-        website: null,
-      },
-    ];
-    (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithoutImageJson));
+  it.each<{
+    tier: OpenCollectiveTier;
+    sponsorType: string;
+  }>([
+    { tier: 'backer', sponsorType: 'backers' },
+    { tier: 'Bronze sponsor', sponsorType: 'bronzes' },
+  ])(
+    'should prevent overwriting an existing user image with seed4j logo even if the user does not have an image from the open collective api for $sponsorType',
+    async ({ tier }) => {
+      setupMocks();
+      const seed4jMembersWithoutImageJson: Seed4jMember[] = [
+        {
+          MemberId: 721005,
+          createdAt: '2025-09-05 10:00',
+          type: 'USER',
+          role: 'BACKER',
+          tier,
+          isActive: true,
+          totalAmountDonated: 40,
+          currency: 'USD',
+          lastTransactionAt: '2025-09-05 10:00',
+          lastTransactionAmount: 10,
+          profile: 'https://opencollective.com/morgan-smith',
+          name: 'Morgan Smith',
+          company: null,
+          description: 'Passionate about contributing to tech communities.',
+          image: null,
+          email: 'morgan.smith@example.com',
+          newsletterOptIn: true,
+          twitter: null,
+          github: null,
+          website: null,
+        },
+      ];
+      (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithoutImageJson));
 
-    await generate();
+      await generate();
 
-    expect(promises.writeFile).not.toHaveBeenCalledWith('public/sponsors/morgan-smith.png', Buffer.from(new ArrayBuffer(16)));
-  });
+      expect(promises.writeFile).not.toHaveBeenCalledWith('public/sponsors/morgan-smith.png', Buffer.from(new ArrayBuffer(16)));
+    },
+  );
 
   const setupMocks = () => {
     vi.clearAllMocks();

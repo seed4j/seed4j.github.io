@@ -1,0 +1,44 @@
+import type { OpenCollectiveTier } from './OpenCollectiveTier';
+
+type Seed4jMemberMemberId = number;
+type Seed4jMemberCreatedAt = string;
+type Seed4jMemberProfile = string;
+type Seed4jMemberName = string;
+type Seed4jMemberCompany = string | null;
+type Seed4jMemberDescription = string | null;
+type Seed4jMemberImage = string | null;
+type Seed4jMemberEmail = string | null;
+type Seed4jMemberNewsletterOptIn = boolean | null;
+type Seed4jMemberTwitter = string | null;
+type Seed4jMemberGithub = string | null;
+type Seed4jMemberWebsite = string | null;
+type Seed4jMemberTotalAmountDonated = number;
+type Seed4jMemberCurrency = string;
+type Seed4jMemberLastTransactionAt = string;
+type Seed4jMemberLastTransactionAmount = number;
+type Seed4jMemberIsActive = boolean;
+type OpenCollectiveRole = 'ADMIN' | 'HOST' | 'BACKER';
+type OpenCollectiveType = 'USER' | 'ORGANIZATION';
+
+export type Seed4jMember = {
+  MemberId: Seed4jMemberMemberId;
+  createdAt: Seed4jMemberCreatedAt;
+  type: OpenCollectiveType;
+  role: OpenCollectiveRole;
+  isActive: Seed4jMemberIsActive;
+  totalAmountDonated: Seed4jMemberTotalAmountDonated;
+  currency?: Seed4jMemberCurrency;
+  lastTransactionAt: Seed4jMemberLastTransactionAt;
+  lastTransactionAmount: Seed4jMemberLastTransactionAmount;
+  profile: Seed4jMemberProfile;
+  name: Seed4jMemberName;
+  company: Seed4jMemberCompany;
+  description: Seed4jMemberDescription;
+  image: Seed4jMemberImage;
+  email?: Seed4jMemberEmail;
+  newsletterOptIn?: Seed4jMemberNewsletterOptIn;
+  twitter: Seed4jMemberTwitter;
+  github: Seed4jMemberGithub;
+  website: Seed4jMemberWebsite;
+  tier?: OpenCollectiveTier;
+};

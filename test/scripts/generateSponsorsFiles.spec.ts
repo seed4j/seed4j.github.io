@@ -1,8 +1,9 @@
 import { Buffer } from 'buffer';
 import { existsSync, promises } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
-import type { Seed4jMember } from '../../scripts/generateSponsorsFiles';
 import { generate } from '../../scripts/generateSponsorsFiles';
+import type { OpenCollectiveTier } from '../../scripts/OpenCollectiveTier';
+import type { Seed4jMember } from '../../scripts/Seed4jMember';
 
 global.fetch = vi.fn();
 
@@ -105,48 +106,69 @@ describe('Generate sponsors data', () => {
     },
   );
 
-  it('should give preference to use the user website instead of the open collective profile url', async () => {
-    setupMocks();
-    const seed4jMembersWithWebsiteJson: Seed4jMember[] = [
-      {
-        MemberId: 721002,
-        createdAt: '2025-09-04 12:00',
-        type: 'USER',
-        role: 'BACKER',
-        tier: 'backer',
-        isActive: true,
-        totalAmountDonated: 50,
-        currency: 'USD',
-        lastTransactionAt: '2025-09-04 12:00',
-        lastTransactionAmount: 50,
-        profile: 'https://opencollective.com/alex-jones',
-        name: 'Alex Jones',
-        company: null,
-        description: 'Supporter of open source initiatives.',
-        image: null,
-        email: 'alex.jones@example.com',
-        newsletterOptIn: false,
-        twitter: 'https://twitter.com/alexjones',
-        github: 'https://github.com/alexjones',
-        website: 'https://alexjones.dev',
-      },
-    ];
-    (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithWebsiteJson));
+  it.each<{
+    sponsorType: string;
+    tier: OpenCollectiveTier;
+    filePath: string;
+    contentGenerator: (data: any[]) => string;
+  }>([
+    {
+      sponsorType: 'backers',
+      tier: 'backer',
+      filePath: '.vitepress/data/sponsors/backers.ts',
+      contentGenerator: createExpectedBackersContent,
+    },
+    {
+      sponsorType: 'bronzes',
+      tier: 'Bronze sponsor',
+      filePath: '.vitepress/data/sponsors/bronzes.ts',
+      contentGenerator: createExpectedBronzesContent,
+    },
+  ])(
+    'should give preference to use the user website instead of the open collective profile url for $sponsorType',
+    async ({ tier, filePath, contentGenerator }) => {
+      setupMocks();
+      const seed4jMembersWithWebsiteJson: Seed4jMember[] = [
+        {
+          MemberId: 721002,
+          createdAt: '2025-09-04 12:00',
+          type: 'USER',
+          role: 'BACKER',
+          tier,
+          isActive: true,
+          totalAmountDonated: 50,
+          currency: 'USD',
+          lastTransactionAt: '2025-09-04 12:00',
+          lastTransactionAmount: 50,
+          profile: 'https://opencollective.com/alex-jones',
+          name: 'Alex Jones',
+          company: null,
+          description: 'Supporter of open source initiatives.',
+          image: null,
+          email: 'alex.jones@example.com',
+          newsletterOptIn: false,
+          twitter: 'https://twitter.com/alexjones',
+          github: 'https://github.com/alexjones',
+          website: 'https://alexjones.dev',
+        },
+      ];
+      (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithWebsiteJson));
 
-    const expectedBackersContent = createExpectedBackersContent([
-      {
-        name: 'Alex Jones',
-        url: 'https://alexjones.dev',
-        img: '/sponsors/alex-jones.png',
-      },
-    ]);
+      const expectedContent = contentGenerator([
+        {
+          name: 'Alex Jones',
+          url: 'https://alexjones.dev',
+          img: '/sponsors/alex-jones.png',
+        },
+      ]);
 
-    await generate();
+      await generate();
 
-    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/sponsors/backers.ts', expectedBackersContent, 'utf8');
-  });
+      expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
+    },
+  );
 
-  it('should download backers image from open collective api', async () => {
+  it('should download image from open collective api', async () => {
     setupMocks();
     const seed4jMembersWithImageJson: Seed4jMember[] = [
       {

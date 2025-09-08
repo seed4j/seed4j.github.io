@@ -39,6 +39,20 @@ describe('Generate sponsors data', () => {
     return `import type { Sponsor } from './sponsors';\n\nexport const bronze: Sponsor[] = [${bronzes.length > 0 ? '\n' + bronzesArray + ',\n' : ''}];\n`;
   };
 
+  const createExpectedSilversContent = (silvers: Array<{ name: string; url: string; img: string }>) => {
+    const silversArray = silvers
+      .map(
+        silver => `  {
+    name: '${silver.name}',
+    url: '${silver.url}',
+    img: '${silver.img}',
+  }`,
+      )
+      .join(',\n');
+
+    return `import type { Sponsor } from './sponsors';\n\nexport const silver: Sponsor[] = [${silvers.length > 0 ? '\n' + silversArray + ',\n' : ''}];\n`;
+  };
+
   it.each([
     {
       sponsorType: 'backers',
@@ -69,6 +83,18 @@ describe('Generate sponsors data', () => {
         },
       ],
     },
+    {
+      sponsorType: 'silvers',
+      filePath: '.vitepress/data/sponsors/silvers.ts',
+      contentGenerator: createExpectedSilversContent,
+      expectedData: [
+        {
+          name: 'Avery Quinn',
+          url: 'https://opencollective.com/avery-quinn',
+          img: '/sponsors/avery-quinn.png',
+        },
+      ],
+    },
   ])('should generate $sponsorType data from open collective api', async ({ filePath, contentGenerator, expectedData }) => {
     setupMocks();
     (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersJson));
@@ -91,6 +117,12 @@ describe('Generate sponsors data', () => {
       sponsorType: 'bronzes',
       filePath: '.vitepress/data/sponsors/bronzes.ts',
       contentGenerator: createExpectedBronzesContent,
+    },
+    {
+      tierToFilter: 'Silver sponsor',
+      sponsorType: 'silvers',
+      filePath: '.vitepress/data/sponsors/silvers.ts',
+      contentGenerator: createExpectedSilversContent,
     },
   ])(
     'should generate empty $sponsorType when does not have sponsors for its specific tier',
@@ -123,6 +155,12 @@ describe('Generate sponsors data', () => {
       tier: 'Bronze sponsor',
       filePath: '.vitepress/data/sponsors/bronzes.ts',
       contentGenerator: createExpectedBronzesContent,
+    },
+    {
+      sponsorType: 'silvers',
+      tier: 'Silver sponsor',
+      filePath: '.vitepress/data/sponsors/silvers.ts',
+      contentGenerator: createExpectedSilversContent,
     },
   ])(
     'should give preference to use the user website instead of the open collective profile url for $sponsorType',
@@ -186,6 +224,12 @@ describe('Generate sponsors data', () => {
       filePath: '.vitepress/data/sponsors/bronzes.ts',
       contentGenerator: createExpectedBronzesContent,
     },
+    {
+      sponsorType: 'silvers',
+      tier: 'Silver sponsor',
+      filePath: '.vitepress/data/sponsors/silvers.ts',
+      contentGenerator: createExpectedSilversContent,
+    },
   ])('should download image from open collective api for $sponsorType', async ({ tier, filePath, contentGenerator }) => {
     setupMocks();
     const seed4jMembersWithImageJson: Seed4jMember[] = [
@@ -234,6 +278,7 @@ describe('Generate sponsors data', () => {
   }>([
     { sponsorType: 'backers', tier: 'backer' },
     { sponsorType: 'bronzes', tier: 'Bronze sponsor' },
+    { sponsorType: 'silvers', tier: 'Silver sponsor' },
   ])('should use the seed4j logo as a placeholder for open collective members without an image for $sponsorType', async ({ tier }) => {
     setupMocks();
     const seed4jMembersWithoutImageJson: Seed4jMember[] = [
@@ -270,12 +315,14 @@ describe('Generate sponsors data', () => {
   it.each<{
     tier: OpenCollectiveTier;
     sponsorType: string;
+    filePath: string;
   }>([
-    { tier: 'backer', sponsorType: 'backers' },
-    { tier: 'Bronze sponsor', sponsorType: 'bronzes' },
+    { tier: 'backer', sponsorType: 'backers', filePath: '.vitepress/data/sponsors/backers.ts' },
+    { tier: 'Bronze sponsor', sponsorType: 'bronzes', filePath: '.vitepress/data/sponsors/bronzes.ts' },
+    { tier: 'Silver sponsor', sponsorType: 'silvers' , filePath: '.vitepress/data/sponsors/silvers.ts'},
   ])(
     'should prevent overwriting an existing user image with seed4j logo even if the user does not have an image from the open collective api for $sponsorType',
-    async ({ tier }) => {
+    async ({ tier, filePath }) => {
       setupMocks();
       const seed4jMembersWithoutImageJson: Seed4jMember[] = [
         {
@@ -305,6 +352,7 @@ describe('Generate sponsors data', () => {
 
       await generate();
 
+      expect(promises.writeFile).toHaveBeenCalledWith(filePath, expect.any(String), 'utf8');
       expect(promises.writeFile).not.toHaveBeenCalledWith('public/sponsors/morgan-smith.png', Buffer.from(new ArrayBuffer(16)));
     },
   );
@@ -501,6 +549,28 @@ describe('Generate sponsors data', () => {
       lastTransactionAmount: 100,
       profile: 'https://opencollective.com/guest-b627ebd3',
       name: 'Geoffray Gruel',
+      company: null,
+      description: null,
+      image: null,
+      email: null,
+      newsletterOptIn: null,
+      twitter: null,
+      github: null,
+      website: null,
+    },
+    {
+      MemberId: 721006,
+      createdAt: '2025-09-06 11:00',
+      type: 'USER',
+      role: 'BACKER',
+      tier: 'Silver sponsor',
+      isActive: true,
+      totalAmountDonated: 500,
+      currency: 'USD',
+      lastTransactionAt: '2025-09-06 11:00',
+      lastTransactionAmount: 500,
+      profile: 'https://opencollective.com/avery-quinn',
+      name: 'Avery Quinn',
       company: null,
       description: null,
       image: null,

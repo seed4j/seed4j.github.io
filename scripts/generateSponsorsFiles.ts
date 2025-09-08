@@ -17,6 +17,7 @@ const SPONSORS_DIR = 'public/sponsors';
 const PLACEHOLDER_IMAGE_PATH = 'public/logo.png';
 const BACKERS_FILE_PATH = '.vitepress/data/sponsors/backers.ts';
 const BRONZES_FILE_PATH = '.vitepress/data/sponsors/bronzes.ts';
+const SILVERS_FILE_PATH = '.vitepress/data/sponsors/silvers.ts';
 const OPEN_COLLECTIVE_API_URL = 'https://opencollective.com/seed4j/members.json';
 const IMAGE_EXTENSION = '.png';
 
@@ -30,13 +31,18 @@ const BRONZES_FILE_TEMPLATE = `import type { Sponsor } from './sponsors';
 export const bronze: Sponsor[] = [{{CONTENT}}];
 `;
 
-export async function generate(): Promise<void> {
-  return fetchSeed4jMembers().then(async seed4jMembers => {
-    const backersPromise = prefetchSponsors(seed4jMembers, 'backer', BACKERS_FILE_PATH, BACKERS_FILE_TEMPLATE);
-    const bronzesPromise = prefetchSponsors(seed4jMembers, 'Bronze sponsor', BRONZES_FILE_PATH, BRONZES_FILE_TEMPLATE);
+const SILVERS_FILE_TEMPLATE = `import type { Sponsor } from './sponsors';
 
-    return Promise.all([backersPromise, bronzesPromise]).then(() => undefined);
-  });
+export const silver: Sponsor[] = [{{CONTENT}}];
+`;
+
+export async function generate(): Promise<void> {
+  return fetchSeed4jMembers().then(async seed4jMembers =>
+    prefetchSponsors(seed4jMembers, 'backer', BACKERS_FILE_PATH, BACKERS_FILE_TEMPLATE)
+      .then(() => prefetchSponsors(seed4jMembers, 'Bronze sponsor', BRONZES_FILE_PATH, BRONZES_FILE_TEMPLATE))
+      .then(() => prefetchSponsors(seed4jMembers, 'Silver sponsor', SILVERS_FILE_PATH, SILVERS_FILE_TEMPLATE))
+      .then(() => undefined),
+  );
 }
 
 const fetchSeed4jMembers = async (): Promise<Seed4jMember[]> => fetch(OPEN_COLLECTIVE_API_URL).then(response => response.json());
@@ -47,7 +53,7 @@ const prefetchSponsors = async (seed4jMembers: Seed4jMember[], tier: OpenCollect
   const imageDownloadInfos = mapToImageDownloadInfo(activeSponsors);
 
   const fileContent = generateFileContent(sponsors, template);
-  return nodePromises.writeFile(filePath, fileContent, 'utf8').then(() => downloadAllBackerImages(imageDownloadInfos));
+  return nodePromises.writeFile(filePath, fileContent, 'utf8').then(() => downloadAllImages(imageDownloadInfos));
 };
 
 const filterActiveSponsors = (members: Seed4jMember[], tier: OpenCollectiveTier): Seed4jMember[] =>
@@ -95,13 +101,13 @@ const generateFileContent = (sponsors: Sponsor[], template: string): string => {
   return template.replace('{{CONTENT}}', sponsorsContent);
 };
 
-const downloadAllBackerImages = async (imageInfos: ImageDownloadInfo[]): Promise<void> => {
-  const downloadPromises = imageInfos.map(imageInfo => downloadBackerImage(imageInfo).catch(error => console.error(error)));
+const downloadAllImages = async (imageInfos: ImageDownloadInfo[]): Promise<void> => {
+  const downloadPromises = imageInfos.map(imageInfo => downloadImage(imageInfo).catch(error => console.error(error)));
 
   return Promise.all(downloadPromises).then(() => undefined);
 };
 
-const downloadBackerImage = async (imageInfo: ImageDownloadInfo): Promise<void> => {
+const downloadImage = async (imageInfo: ImageDownloadInfo): Promise<void> => {
   if (!imageInfo.imageUrl) return usePlaceHolderImage(imageInfo.filename);
 
   return fetch(imageInfo.imageUrl)

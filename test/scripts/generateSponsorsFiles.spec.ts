@@ -38,17 +38,56 @@ describe('Generate sponsors data', () => {
     expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/sponsors/backers.ts', expectedBackersContent, 'utf8');
   });
 
-  it('should generate empty backers when does not have sponsors for its specific tier', async () => {
-    setupMocks();
-    const seed4jMembersWithoutBeckersTierJson: Seed4jMember[] = seed4jMembersJson.filter(member => member.tier !== 'backer');
-    (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithoutBeckersTierJson));
 
-    const expectedBackersContent = createExpectedBackersContent([]);
 
-    await generate();
+  const createExpectedBackersContent = (backers: Array<{ name: string; url: string; img: string }>) => {
+    const backersArray = backers
+      .map(backer => `  {\n    name: '${backer.name}',\n    url: '${backer.url}',\n    img: '${backer.img}',\n  }`)
+      .join(',\n');
 
-    expect(promises.writeFile).toHaveBeenCalledWith('.vitepress/data/sponsors/backers.ts', expectedBackersContent, 'utf8');
-  });
+    return `import type { Sponsor } from './sponsors';\n\nexport const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + ',\n' : ''}];\n`;
+  };
+
+  const createExpectedBronzesContent = (bronzes: Array<{ name: string; url: string; img: string }>) => {
+    const bronzesArray = bronzes
+      .map(
+        bronze => `  {
+    name: '${bronze.name}',
+    url: '${bronze.url}',
+    img: '${bronze.img}',
+  }`,
+      )
+      .join(',\n');
+
+    return `import type { Sponsor } from './sponsors';\n\nexport const bronze: Sponsor[] = [${bronzes.length > 0 ? '\n' + bronzesArray + ',\n' : ''}];\n`;
+  };
+
+  it.each([
+    {
+      tierToFilter: 'backer',
+      sponsorType: 'backers',
+      filePath: '.vitepress/data/sponsors/backers.ts',
+      contentGenerator: createExpectedBackersContent,
+    },
+    {
+      tierToFilter: 'Bronze sponsor',
+      sponsorType: 'bronzes',
+      filePath: '.vitepress/data/sponsors/bronzes.ts',
+      contentGenerator: createExpectedBronzesContent,
+    },
+  ])(
+    'should generate empty $sponsorType when does not have sponsors for its specific tier',
+    async ({ tierToFilter, filePath, contentGenerator }) => {
+      setupMocks();
+      const seed4jMembersWithoutTierJson: Seed4jMember[] = seed4jMembersJson.filter(member => member.tier !== tierToFilter);
+      (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithoutTierJson));
+      const expectedContent = contentGenerator([]);
+
+      await generate();
+
+      expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
+    },
+  );
 
   it('should give preference to use the user website instead of the open collective profile url', async () => {
     setupMocks();
@@ -230,14 +269,6 @@ describe('Generate sponsors data', () => {
       }
       return Promise.reject(new Error(`Unexpected URL: ${url}`));
     };
-  };
-
-  const createExpectedBackersContent = (backers: Array<{ name: string; url: string; img: string }>) => {
-    const backersArray = backers
-      .map(backer => `  {\n    name: '${backer.name}',\n    url: '${backer.url}',\n    img: '${backer.img}',\n  }`)
-      .join(',\n');
-
-    return `import type { Sponsor } from './sponsors';\n\nexport const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + ',\n' : ''}];\n`;
   };
 
   const seed4jMembersJson: Seed4jMember[] = [

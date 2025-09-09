@@ -16,6 +16,26 @@ vi.mock('node:fs', () => ({
   existsSync: vi.fn(),
 }));
 
+const SPONSOR_TYPE_BACKERS = 'backers';
+const TIER_BACKERS = 'backer';
+const FILE_PATH_BACKERS = '.vitepress/data/sponsors/backers.ts';
+
+const SPONSOR_TYPE_BRONZE_SPONSORS = 'bronzes sponsors';
+const TIER_BRONZE_SPONSORS = 'Bronze sponsor';
+const FILE_PATH_BRONZE_SPONSORS = '.vitepress/data/sponsors/bronzeSponsors.ts';
+
+const SPONSOR_TYPE_SILVER_SPONSORS = 'silver sponsors';
+const TIER_SILVER_SPONSORS = 'Silver sponsor';
+const FILE_PATH_SILVER_SPONSORS = '.vitepress/data/sponsors/silverSponsors.ts';
+
+const SPONSOR_TYPE_GOLD_SPONSORS = 'gold sponsors';
+const TIER_GOLD_SPONSORS = 'Gold sponsor';
+const FILE_PATH_GOLD_SPONSORS = '.vitepress/data/sponsors/goldSponsors.ts';
+
+const SPONSOR_TYPE_PLATINUM_SPONSORS = 'platinum sponsors';
+const TIER_PLATINUM_SPONSORS = 'Platinum sponsor';
+const FILE_PATH_PLATINUM_SPONSORS = '.vitepress/data/sponsors/platinumSponsors.ts';
+
 describe('Generate sponsors data', () => {
   const createExpectedBackersContent = (backers: Array<{ name: string; url: string; img: string }>) => {
     const backersArray = backers
@@ -25,7 +45,7 @@ describe('Generate sponsors data', () => {
     return `import type { Sponsor } from './sponsors';\n\nexport const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + ',\n' : ''}];\n`;
   };
 
-  const createExpectedBronzesContent = (bronzes: Array<{ name: string; url: string; img: string }>) => {
+  const createExpectedBronzeSponsorsContent = (bronzes: Array<{ name: string; url: string; img: string }>) => {
     const bronzesArray = bronzes
       .map(
         bronze => `  {
@@ -83,8 +103,8 @@ describe('Generate sponsors data', () => {
 
   it.each([
     {
-      sponsorType: 'backers',
-      filePath: '.vitepress/data/sponsors/backers.ts',
+      sponsorType: SPONSOR_TYPE_BACKERS,
+      filePath: FILE_PATH_BACKERS,
       contentGenerator: createExpectedBackersContent,
       expectedData: [
         {
@@ -100,9 +120,9 @@ describe('Generate sponsors data', () => {
       ],
     },
     {
-      sponsorType: 'bronzes',
-      filePath: '.vitepress/data/sponsors/bronzes.ts',
-      contentGenerator: createExpectedBronzesContent,
+      sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
+      filePath: FILE_PATH_BRONZE_SPONSORS,
+      contentGenerator: createExpectedBronzeSponsorsContent,
       expectedData: [
         {
           name: 'Geoffray Gruel',
@@ -112,8 +132,8 @@ describe('Generate sponsors data', () => {
       ],
     },
     {
-      sponsorType: 'silvers',
-      filePath: '.vitepress/data/sponsors/silvers.ts',
+      sponsorType: SPONSOR_TYPE_SILVER_SPONSORS,
+      filePath: FILE_PATH_SILVER_SPONSORS,
       contentGenerator: createExpectedSilversContent,
       expectedData: [
         {
@@ -124,8 +144,8 @@ describe('Generate sponsors data', () => {
       ],
     },
     {
-      sponsorType: 'golds',
-      filePath: '.vitepress/data/sponsors/golds.ts',
+      sponsorType: SPONSOR_TYPE_GOLD_SPONSORS,
+      filePath: FILE_PATH_GOLD_SPONSORS,
       contentGenerator: createExpectedGoldsContent,
       expectedData: [
         {
@@ -136,8 +156,8 @@ describe('Generate sponsors data', () => {
       ],
     },
     {
-      sponsorType: 'platinum sponsors',
-      filePath: '.vitepress/data/sponsors/platinumSponsors.ts',
+      sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS,
+      filePath: FILE_PATH_PLATINUM_SPONSORS,
       contentGenerator: createExpectedPlatinumSponsorsContent,
       expectedData: [
         {
@@ -159,33 +179,33 @@ describe('Generate sponsors data', () => {
 
   it.each([
     {
-      tierToFilter: 'backer',
-      sponsorType: 'backers',
-      filePath: '.vitepress/data/sponsors/backers.ts',
+      tierToFilter: TIER_BACKERS,
+      sponsorType: SPONSOR_TYPE_BACKERS,
+      filePath: FILE_PATH_BACKERS,
       contentGenerator: createExpectedBackersContent,
     },
     {
-      tierToFilter: 'Bronze sponsor',
-      sponsorType: 'bronzes',
-      filePath: '.vitepress/data/sponsors/bronzes.ts',
-      contentGenerator: createExpectedBronzesContent,
+      tierToFilter: TIER_BRONZE_SPONSORS,
+      sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
+      filePath: FILE_PATH_BRONZE_SPONSORS,
+      contentGenerator: createExpectedBronzeSponsorsContent,
     },
     {
-      tierToFilter: 'Silver sponsor',
-      sponsorType: 'silvers',
-      filePath: '.vitepress/data/sponsors/silvers.ts',
+      tierToFilter: TIER_SILVER_SPONSORS,
+      sponsorType: SPONSOR_TYPE_SILVER_SPONSORS,
+      filePath: FILE_PATH_SILVER_SPONSORS,
       contentGenerator: createExpectedSilversContent,
     },
     {
-      tierToFilter: 'Gold sponsor',
-      sponsorType: 'golds',
-      filePath: '.vitepress/data/sponsors/golds.ts',
+      tierToFilter: TIER_GOLD_SPONSORS,
+      sponsorType: SPONSOR_TYPE_GOLD_SPONSORS,
+      filePath: FILE_PATH_GOLD_SPONSORS,
       contentGenerator: createExpectedGoldsContent,
     },
     {
-      tierToFilter: 'Platinum sponsor',
-      sponsorType: 'platinum sponsors',
-      filePath: '.vitepress/data/sponsors/platinumSponsors.ts',
+      tierToFilter: TIER_PLATINUM_SPONSORS,
+      sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS,
+      filePath: FILE_PATH_PLATINUM_SPONSORS,
       contentGenerator: createExpectedPlatinumSponsorsContent,
     }
   ])(
@@ -209,33 +229,33 @@ describe('Generate sponsors data', () => {
     contentGenerator: (data: any[]) => string;
   }>([
     {
-      sponsorType: 'backers',
-      tier: 'backer',
-      filePath: '.vitepress/data/sponsors/backers.ts',
+      sponsorType: SPONSOR_TYPE_BACKERS,
+      tier: TIER_BACKERS,
+      filePath: FILE_PATH_BACKERS,
       contentGenerator: createExpectedBackersContent,
     },
     {
-      sponsorType: 'bronzes',
-      tier: 'Bronze sponsor',
-      filePath: '.vitepress/data/sponsors/bronzes.ts',
-      contentGenerator: createExpectedBronzesContent,
+      sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
+      tier: TIER_BRONZE_SPONSORS,
+      filePath: FILE_PATH_BRONZE_SPONSORS,
+      contentGenerator: createExpectedBronzeSponsorsContent,
     },
     {
-      sponsorType: 'silvers',
-      tier: 'Silver sponsor',
-      filePath: '.vitepress/data/sponsors/silvers.ts',
+      sponsorType: SPONSOR_TYPE_SILVER_SPONSORS,
+      tier: TIER_SILVER_SPONSORS,
+      filePath: FILE_PATH_SILVER_SPONSORS,
       contentGenerator: createExpectedSilversContent,
     },
     {
-      sponsorType: 'golds',
-      tier: 'Gold sponsor',
-      filePath: '.vitepress/data/sponsors/golds.ts',
+      sponsorType: SPONSOR_TYPE_GOLD_SPONSORS,
+      tier: TIER_GOLD_SPONSORS,
+      filePath: FILE_PATH_GOLD_SPONSORS,
       contentGenerator: createExpectedGoldsContent,
     },
     {
-      sponsorType: 'platinum sponsors',
-      tier: 'Platinum sponsor',
-      filePath: '.vitepress/data/sponsors/platinumSponsors.ts',
+      sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS,
+      tier: TIER_PLATINUM_SPONSORS,
+      filePath: FILE_PATH_PLATINUM_SPONSORS,
       contentGenerator: createExpectedPlatinumSponsorsContent,
     }
   ])(
@@ -289,33 +309,33 @@ describe('Generate sponsors data', () => {
     contentGenerator: (data: any[]) => string;
   }>([
     {
-      sponsorType: 'backers',
-      tier: 'backer',
-      filePath: '.vitepress/data/sponsors/backers.ts',
+      sponsorType: SPONSOR_TYPE_BACKERS,
+      tier: TIER_BACKERS,
+      filePath: FILE_PATH_BACKERS,
       contentGenerator: createExpectedBackersContent,
     },
     {
-      sponsorType: 'bronzes',
-      tier: 'Bronze sponsor',
-      filePath: '.vitepress/data/sponsors/bronzes.ts',
-      contentGenerator: createExpectedBronzesContent,
+      sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
+      tier: TIER_BRONZE_SPONSORS,
+      filePath: FILE_PATH_BRONZE_SPONSORS,
+      contentGenerator: createExpectedBronzeSponsorsContent,
     },
     {
-      sponsorType: 'silvers',
-      tier: 'Silver sponsor',
-      filePath: '.vitepress/data/sponsors/silvers.ts',
+      sponsorType: SPONSOR_TYPE_SILVER_SPONSORS,
+      tier: TIER_SILVER_SPONSORS,
+      filePath: FILE_PATH_SILVER_SPONSORS,
       contentGenerator: createExpectedSilversContent,
     },
     {
-      sponsorType: 'golds',
-      tier: 'Gold sponsor',
-      filePath: '.vitepress/data/sponsors/golds.ts',
+      sponsorType: SPONSOR_TYPE_GOLD_SPONSORS,
+      tier: TIER_GOLD_SPONSORS,
+      filePath: FILE_PATH_GOLD_SPONSORS,
       contentGenerator: createExpectedGoldsContent,
     },
     {
-      sponsorType: 'platinum sponsors',
-      tier: 'Platinum sponsor',
-      filePath: '.vitepress/data/sponsors/platinumSponsors.ts',
+      sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS,
+      tier: TIER_PLATINUM_SPONSORS,
+      filePath: FILE_PATH_PLATINUM_SPONSORS,
       contentGenerator: createExpectedPlatinumSponsorsContent,
     }
   ])('should download image from open collective api for $sponsorType', async ({ tier, filePath, contentGenerator }) => {
@@ -364,11 +384,11 @@ describe('Generate sponsors data', () => {
     sponsorType: string;
     tier: OpenCollectiveTier;
   }>([
-    { sponsorType: 'backers', tier: 'backer' },
-    { sponsorType: 'bronzes', tier: 'Bronze sponsor' },
-    { sponsorType: 'silvers', tier: 'Silver sponsor' },
-    { sponsorType: 'golds', tier: 'Gold sponsor' },
-    { sponsorType: 'platinum sponsors', tier: 'Platinum sponsor' },
+    { sponsorType: SPONSOR_TYPE_BACKERS, tier: TIER_BACKERS },
+    { sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS, tier: TIER_BRONZE_SPONSORS },
+    { sponsorType: SPONSOR_TYPE_SILVER_SPONSORS, tier: TIER_SILVER_SPONSORS },
+    { sponsorType: SPONSOR_TYPE_GOLD_SPONSORS, tier: TIER_GOLD_SPONSORS },
+    { sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS, tier: TIER_PLATINUM_SPONSORS },
   ])('should use the seed4j logo as a placeholder for open collective members without an image for $sponsorType', async ({ tier }) => {
     setupMocks();
     const seed4jMembersWithoutImageJson: Seed4jMember[] = [
@@ -407,11 +427,11 @@ describe('Generate sponsors data', () => {
     sponsorType: string;
     filePath: string;
   }>([
-    { tier: 'backer', sponsorType: 'backers', filePath: '.vitepress/data/sponsors/backers.ts' },
-    { tier: 'Bronze sponsor', sponsorType: 'bronzes', filePath: '.vitepress/data/sponsors/bronzes.ts' },
-    { tier: 'Silver sponsor', sponsorType: 'silvers', filePath: '.vitepress/data/sponsors/silvers.ts' },
-    { tier: 'Gold sponsor', sponsorType: 'golds', filePath: '.vitepress/data/sponsors/golds.ts' },
-    { tier: 'Platinum sponsor', sponsorType: 'platinum sponsors', filePath: '.vitepress/data/sponsors/platinumSponsors.ts' },
+    { tier: TIER_BACKERS, sponsorType: SPONSOR_TYPE_BACKERS, filePath: FILE_PATH_BACKERS },
+    { tier: TIER_BRONZE_SPONSORS, sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS, filePath: FILE_PATH_BRONZE_SPONSORS },
+    { tier: TIER_SILVER_SPONSORS, sponsorType: SPONSOR_TYPE_SILVER_SPONSORS, filePath: FILE_PATH_SILVER_SPONSORS },
+    { tier: TIER_GOLD_SPONSORS, sponsorType: SPONSOR_TYPE_GOLD_SPONSORS, filePath: FILE_PATH_GOLD_SPONSORS },
+    { tier: TIER_PLATINUM_SPONSORS, sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS, filePath: FILE_PATH_PLATINUM_SPONSORS },
   ])(
     'should prevent overwriting an existing user image with seed4j logo even if the user does not have an image from the open collective api for $sponsorType',
     async ({ tier, filePath }) => {

@@ -19,6 +19,7 @@ const BACKERS_FILE_PATH = '.vitepress/data/sponsors/backers.ts';
 const BRONZES_FILE_PATH = '.vitepress/data/sponsors/bronzes.ts';
 const SILVERS_FILE_PATH = '.vitepress/data/sponsors/silvers.ts';
 const GOLDS_FILE_PATH = '.vitepress/data/sponsors/golds.ts';
+const PLATINUMS_FILE_PATH = '.vitepress/data/sponsors/platinumSponsors.ts';
 const OPEN_COLLECTIVE_API_URL = 'https://opencollective.com/seed4j/members.json';
 const IMAGE_EXTENSION = '.png';
 
@@ -42,12 +43,18 @@ const GOLDS_FILE_TEMPLATE = `import type { Sponsor } from './sponsors';
 export const gold: Sponsor[] = [{{CONTENT}}];
 `;
 
+const PLATINUM_SPONSORS_FILE_TEMPLATE = `import type { Sponsor } from './sponsors';
+
+export const platinum: Sponsor[] = [{{CONTENT}}];
+`;
+
 export async function generate(): Promise<void> {
   return fetchSeed4jMembers().then(async seed4jMembers =>
     prefetchSponsors(seed4jMembers, 'backer', BACKERS_FILE_PATH, BACKERS_FILE_TEMPLATE)
       .then(() => prefetchSponsors(seed4jMembers, 'Bronze sponsor', BRONZES_FILE_PATH, BRONZES_FILE_TEMPLATE))
       .then(() => prefetchSponsors(seed4jMembers, 'Silver sponsor', SILVERS_FILE_PATH, SILVERS_FILE_TEMPLATE))
-      .then(() => prefetchSponsors(seed4jMembers, 'Gold sponsor', GOLDS_FILE_PATH, GOLDS_FILE_TEMPLATE)),
+      .then(() => prefetchSponsors(seed4jMembers, 'Gold sponsor', GOLDS_FILE_PATH, GOLDS_FILE_TEMPLATE))
+      .then(() => prefetchSponsors(seed4jMembers, 'Platinum sponsor', PLATINUMS_FILE_PATH, PLATINUM_SPONSORS_FILE_TEMPLATE)),
   );
 }
 

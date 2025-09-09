@@ -2,8 +2,9 @@ import type { Sponsor } from './sponsors';
 
 export const backer: Sponsor[] = [
   {
-    name: 'Colin Damon',
-    url: 'https://colindamon.dev',
-    img: 'https://avatars.githubusercontent.com/u/59929679?v=4',
+    memberId: 719393,
+    name: 'Colin DAMON',
+    url: 'https://opencollective.com/colin-damon',
+    img: '/sponsors/colin-damon-719393.png',
   },
 ];

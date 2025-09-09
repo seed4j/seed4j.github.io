@@ -5,6 +5,7 @@ import { gold } from './goldSponsors';
 import { platinum } from './platinumSponsors';
 
 export type Sponsor = {
+  memberId: number;
   name: string;
   img: string;
   url: string;

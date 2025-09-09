@@ -7,6 +7,42 @@ type ImageDownloadInfoImageUrl = string | null;
 type ImageDownloadInfoProfile = string;
 type ImageDownloadInfoFilename = string;
 
+const readExistingSponsors = async (filePath: string): Promise<Sponsor[]> => {
+  return nodePromises.readFile(filePath, 'utf8')
+    .then(content => {
+      const exportMatch = content.match(/export const \w+: Sponsor\[] = \[(.*?)];/s);
+      if (!exportMatch) return [];
+
+      const arrayContent = exportMatch[1].trim();
+      if (!arrayContent) return [];
+
+      const sponsors: Sponsor[] = [];
+      const sponsorMatches = arrayContent.match(/\{[^}]+}/g);
+      if (!sponsorMatches) return [];
+
+      sponsorMatches.forEach(match => {
+        const memberIdMatch = match.match(/memberId:\s*(\d+)/);
+        const nameMatch = match.match(/name:\s*'([^']+)'/);
+        const urlMatch = match.match(/url:\s*'([^']+)'/);
+        const imgMatch = match.match(/img:\s*'([^']+)'/);
+
+        if (memberIdMatch && nameMatch && urlMatch && imgMatch) {
+          sponsors.push({
+            memberId: parseInt(memberIdMatch[1]),
+            name: nameMatch[1],
+            url: urlMatch[1],
+            img: imgMatch[1],
+          });
+        }
+      });
+
+      return sponsors;
+    })
+    .catch(() => []);
+};
+
+const guestMember = (member: Seed4jMember): boolean => member.profile.includes('guest-');
+
 type ImageDownloadInfo = {
   imageUrl: ImageDownloadInfoImageUrl;
   profile: ImageDownloadInfoProfile;
@@ -61,9 +97,10 @@ export async function generate(): Promise<void> {
 const fetchSeed4jMembers = async (): Promise<Seed4jMember[]> => fetch(OPEN_COLLECTIVE_API_URL).then(response => response.json());
 
 const prefetchSponsors = async (seed4jMembers: Seed4jMember[], tier: OpenCollectiveTier, filePath: string, template: string) => {
+  const existingSponsors = await readExistingSponsors(filePath);
   const activeSponsors = filterActiveSponsors(seed4jMembers, tier);
-  const sponsors = mapToSponsor(activeSponsors);
-  const imageDownloadInfos = mapToImageDownloadInfo(activeSponsors);
+  const sponsors = mapToSponsor(activeSponsors, existingSponsors);
+  const imageDownloadInfos = mapToImageDownloadInfo(activeSponsors, existingSponsors);
 
   const fileContent = generateFileContent(sponsors, template);
   return nodePromises.writeFile(filePath, fileContent, 'utf8').then(() => downloadAllImages(imageDownloadInfos));
@@ -72,22 +109,40 @@ const prefetchSponsors = async (seed4jMembers: Seed4jMember[], tier: OpenCollect
 const filterActiveSponsors = (members: Seed4jMember[], tier: OpenCollectiveTier): Seed4jMember[] =>
   members.filter(member => member.type === 'USER' && member.role === 'BACKER' && member.tier === tier && member.isActive);
 
-const mapToSponsor = (members: Seed4jMember[]): Sponsor[] =>
-  members.map(member => ({
-    name: member.name,
-    url: member.website ?? member.profile,
-    img: imageFilePath(member.profile),
-  }));
-
-const mapToImageDownloadInfo = (members: Seed4jMember[]): ImageDownloadInfo[] =>
+const mapToSponsor = (members: Seed4jMember[], existingSponsors: Sponsor[]): Sponsor[] =>
   members.map(member => {
-    const profileUsername = member.profile.split('/').pop();
+    if (guestMember(member)) {
+      const existingSponsor = existingSponsors.find(sponsor => sponsor.memberId === member.MemberId);
+      if (existingSponsor) {
+        return existingSponsor;
+      }
+    }
+
     return {
-      imageUrl: member.image,
-      profile: member.profile,
-      filename: profileUsername + IMAGE_EXTENSION,
+      memberId: member.MemberId,
+      name: member.name,
+      url: member.website ?? member.profile,
+      img: imageFilePath(member.profile),
     };
   });
+
+const mapToImageDownloadInfo = (members: Seed4jMember[], existingSponsors: Sponsor[]): ImageDownloadInfo[] =>
+  members
+    .filter(member => {
+      if (guestMember(member)) {
+        const existingSponsor = existingSponsors.find(sponsor => sponsor.memberId === member.MemberId);
+        return !existingSponsor;
+      }
+      return true;
+    })
+    .map(member => {
+      const profileUsername = member.profile.split('/').pop();
+      return {
+        imageUrl: member.image,
+        profile: member.profile,
+        filename: profileUsername + IMAGE_EXTENSION,
+      };
+    });
 
 const imageFilePath = (profile: string): string => {
   const profileUsername = profile.split('/').pop();
@@ -103,6 +158,7 @@ const generateFileContent = (sponsors: Sponsor[], template: string): string => {
     .map(
       sponsor => `
   {
+    memberId: ${sponsor.memberId},
     name: '${sponsor.name}',
     url: '${sponsor.url}',
     img: '${sponsor.img}',

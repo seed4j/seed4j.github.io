@@ -37,18 +37,29 @@ const TIER_PLATINUM_SPONSORS = 'Platinum sponsor';
 const FILE_PATH_PLATINUM_SPONSORS = '.vitepress/data/sponsors/platinumSponsors.ts';
 
 describe('Generate sponsors data', () => {
-  const createExpectedBackersContent = (backers: Array<{ name: string; url: string; img: string }>) => {
+  const createExpectedBackersContent = (backers: Array<{ memberId: number; name: string; url: string; img: string }>) => {
     const backersArray = backers
-      .map(backer => `  {\n    name: '${backer.name}',\n    url: '${backer.url}',\n    img: '${backer.img}',\n  }`)
+      .map(
+        backer => `  {
+    memberId: ${backer.memberId},
+    name: '${backer.name}',
+    url: '${backer.url}',
+    img: '${backer.img}',
+  }`,
+      )
       .join(',\n');
 
-    return `import type { Sponsor } from './sponsors';\n\nexport const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + ',\n' : ''}];\n`;
+    return `import type { Sponsor } from './sponsors';
+
+export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + ',\n' : ''}];
+`;
   };
 
-  const createExpectedBronzeSponsorsContent = (bronzes: Array<{ name: string; url: string; img: string }>) => {
+  const createExpectedBronzeSponsorsContent = (bronzes: Array<{ memberId: number; name: string; url: string; img: string }>) => {
     const bronzesArray = bronzes
       .map(
         bronze => `  {
+    memberId: ${bronze.memberId},
     name: '${bronze.name}',
     url: '${bronze.url}',
     img: '${bronze.img}',
@@ -59,10 +70,11 @@ describe('Generate sponsors data', () => {
     return `import type { Sponsor } from './sponsors';\n\nexport const bronze: Sponsor[] = [${bronzes.length > 0 ? '\n' + bronzesArray + ',\n' : ''}];\n`;
   };
 
-  const createExpectedSilversContent = (silvers: Array<{ name: string; url: string; img: string }>) => {
+  const createExpectedSilversContent = (silvers: Array<{memberId: number; name: string; url: string; img: string }>) => {
     const silversArray = silvers
       .map(
         silver => `  {
+    memberId: ${silver.memberId},
     name: '${silver.name}',
     url: '${silver.url}',
     img: '${silver.img}',
@@ -73,10 +85,11 @@ describe('Generate sponsors data', () => {
     return `import type { Sponsor } from './sponsors';\n\nexport const silver: Sponsor[] = [${silvers.length > 0 ? '\n' + silversArray + ',\n' : ''}];\n`;
   };
 
-  const createExpectedGoldsContent = (golds: Array<{ name: string; url: string; img: string }>) => {
+  const createExpectedGoldsContent = (golds: Array<{memberId: number; name: string; url: string; img: string }>) => {
     const goldsArray = golds
       .map(
         gold => `  {
+    memberId: ${gold.memberId},
     name: '${gold.name}',
     url: '${gold.url}',
     img: '${gold.img}',
@@ -87,10 +100,11 @@ describe('Generate sponsors data', () => {
     return `import type { Sponsor } from './sponsors';\n\nexport const gold: Sponsor[] = [${golds.length > 0 ? '\n' + goldsArray + ',\n' : ''}];\n`;
   };
 
-  const createExpectedPlatinumSponsorsContent = (platinumSponsors: Array<{ name: string; url: string; img: string }>) => {
+  const createExpectedPlatinumSponsorsContent = (platinumSponsors: Array<{memberId: number; name: string; url: string; img: string }>) => {
     const platinumSponsorsArray = platinumSponsors
       .map(
         platinumSponsor => `  {
+    memberId: ${platinumSponsor.memberId},
     name: '${platinumSponsor.name}',
     url: '${platinumSponsor.url}',
     img: '${platinumSponsor.img}',
@@ -108,11 +122,13 @@ describe('Generate sponsors data', () => {
       contentGenerator: createExpectedBackersContent,
       expectedData: [
         {
+          memberId: 719393,
           name: 'Colin DAMON',
           url: 'https://opencollective.com/colin-damon',
           img: '/sponsors/colin-damon.png',
         },
         {
+          memberId: 721000,
           name: 'Jane Doe',
           url: 'https://opencollective.com/jane-doe',
           img: '/sponsors/jane-doe.png',
@@ -125,6 +141,7 @@ describe('Generate sponsors data', () => {
       contentGenerator: createExpectedBronzeSponsorsContent,
       expectedData: [
         {
+          memberId: 720740,
           name: 'Geoffray Gruel',
           url: 'https://opencollective.com/guest-b627ebd3',
           img: '/sponsors/guest-b627ebd3.png',
@@ -137,6 +154,7 @@ describe('Generate sponsors data', () => {
       contentGenerator: createExpectedSilversContent,
       expectedData: [
         {
+          memberId: 721006,
           name: 'Avery Quinn',
           url: 'https://opencollective.com/avery-quinn',
           img: '/sponsors/avery-quinn.png',
@@ -149,6 +167,7 @@ describe('Generate sponsors data', () => {
       contentGenerator: createExpectedGoldsContent,
       expectedData: [
         {
+          memberId: 721011,
           name: 'Elanor Voss',
           url: 'https://opencollective.com/elanor-voss',
           img: '/sponsors/elanor-voss.png',
@@ -161,6 +180,7 @@ describe('Generate sponsors data', () => {
       contentGenerator: createExpectedPlatinumSponsorsContent,
       expectedData: [
         {
+          memberId: 721012,
           name: 'Kaelan Ryder',
           url: 'https://opencollective.com/kaelan-ryder',
           img: '/sponsors/kaelan-ryder.png',
@@ -207,7 +227,7 @@ describe('Generate sponsors data', () => {
       sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS,
       filePath: FILE_PATH_PLATINUM_SPONSORS,
       contentGenerator: createExpectedPlatinumSponsorsContent,
-    }
+    },
   ])(
     'should generate empty $sponsorType when does not have sponsors for its specific tier',
     async ({ tierToFilter, filePath, contentGenerator }) => {
@@ -257,7 +277,7 @@ describe('Generate sponsors data', () => {
       tier: TIER_PLATINUM_SPONSORS,
       filePath: FILE_PATH_PLATINUM_SPONSORS,
       contentGenerator: createExpectedPlatinumSponsorsContent,
-    }
+    },
   ])(
     'should give preference to use the user website instead of the open collective profile url for $sponsorType',
     async ({ tier, filePath, contentGenerator }) => {
@@ -290,6 +310,7 @@ describe('Generate sponsors data', () => {
 
       const expectedContent = contentGenerator([
         {
+          memberId: 721002,
           name: 'Alex Jones',
           url: 'https://alexjones.dev',
           img: '/sponsors/alex-jones.png',
@@ -337,7 +358,7 @@ describe('Generate sponsors data', () => {
       tier: TIER_PLATINUM_SPONSORS,
       filePath: FILE_PATH_PLATINUM_SPONSORS,
       contentGenerator: createExpectedPlatinumSponsorsContent,
-    }
+    },
   ])('should download image from open collective api for $sponsorType', async ({ tier, filePath, contentGenerator }) => {
     setupMocks();
     const seed4jMembersWithImageJson: Seed4jMember[] = [
@@ -368,6 +389,7 @@ describe('Generate sponsors data', () => {
 
     const expectedContent = contentGenerator([
       {
+        memberId: 721003,
         name: 'Sam Taylor',
         url: 'https://samtaylor.dev',
         img: '/sponsors/sam-taylor.png',
@@ -469,12 +491,141 @@ describe('Generate sponsors data', () => {
     },
   );
 
-  const setupMocks = () => {
+  it.each<{
+    sponsorType: string;
+    tier: OpenCollectiveTier;
+    filePath: string;
+    contentGenerator: (data: any[]) => string;
+    guestMemberId: number;
+    guestProfile: string;
+    guestName: string;
+    expectedName: string;
+    expectedUrl: string;
+    expectedImg: string;
+  }>([
+    {
+      sponsorType: SPONSOR_TYPE_BACKERS,
+      tier: TIER_BACKERS,
+      filePath: FILE_PATH_BACKERS,
+      contentGenerator: createExpectedBackersContent,
+      guestMemberId: 720741,
+      guestProfile: 'https://opencollective.com/guest-a123xyz1',
+      guestName: 'Guest Backer',
+      expectedName: 'Guest Backer Test',
+      expectedUrl: 'https://guestbacker.dev',
+      expectedImg: '/sponsors/guest-backer.png',
+    },
+    {
+      sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
+      tier: TIER_BRONZE_SPONSORS,
+      filePath: FILE_PATH_BRONZE_SPONSORS,
+      contentGenerator: createExpectedBronzeSponsorsContent,
+      guestMemberId: 720751,
+      guestProfile: 'https://opencollective.com/guest-b6271234',
+      guestName: 'Guest Bronze',
+      expectedName: 'Guest Bronze Test',
+      expectedUrl: 'https://guestbronze.dev',
+      expectedImg: '/sponsors/guest-bronze.png',
+    },
+    {
+      sponsorType: SPONSOR_TYPE_SILVER_SPONSORS,
+      tier: TIER_SILVER_SPONSORS,
+      filePath: FILE_PATH_SILVER_SPONSORS,
+      contentGenerator: createExpectedSilversContent,
+      guestMemberId: 720742,
+      guestProfile: 'https://opencollective.com/guest-c789def2',
+      guestName: 'Guest Silver',
+      expectedName: 'Guest Silver Test',
+      expectedUrl: 'https://guestsilver.dev',
+      expectedImg: '/sponsors/guest-silver.png',
+    },
+    {
+      sponsorType: SPONSOR_TYPE_GOLD_SPONSORS,
+      tier: TIER_GOLD_SPONSORS,
+      filePath: FILE_PATH_GOLD_SPONSORS,
+      contentGenerator: createExpectedGoldsContent,
+      guestMemberId: 720743,
+      guestProfile: 'https://opencollective.com/guest-d456ghi3',
+      guestName: 'Guest Gold',
+      expectedName: 'Guest Gold Test',
+      expectedUrl: 'https://guestgold.dev',
+      expectedImg: '/sponsors/guest-gold.png',
+    },
+    {
+      sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS,
+      tier: TIER_PLATINUM_SPONSORS,
+      filePath: FILE_PATH_PLATINUM_SPONSORS,
+      contentGenerator: createExpectedPlatinumSponsorsContent,
+      guestMemberId: 720744,
+      guestProfile: 'https://opencollective.com/guest-e789jkl4',
+      guestName: 'Guest Platinum',
+      expectedName: 'Guest Platinum Test',
+      expectedUrl: 'https://guestplatinum.dev',
+      expectedImg: '/sponsors/guest-platinum.png',
+    },
+  ])(
+    'should use existing prefetch member name, URL, and image if it is identified as a guest in OpenCollective for $sponsorType',
+    async ({ tier, filePath, contentGenerator, guestMemberId, guestProfile, guestName, expectedName, expectedUrl, expectedImg }) => {
+      const prefetchFileContent = contentGenerator([
+        {
+          memberId: guestMemberId,
+          name: expectedName,
+          url: expectedUrl,
+          img: expectedImg,
+        },
+      ]);
+      setupMocks(filePath, prefetchFileContent);
+
+      const seed4jMembersWithGuest: Seed4jMember[] = [
+        {
+          MemberId: guestMemberId,
+          createdAt: '2025-08-18 14:24',
+          type: 'USER',
+          role: 'BACKER',
+          tier,
+          isActive: true,
+          totalAmountDonated: 100,
+          currency: 'USD',
+          lastTransactionAt: '2025-08-18 14:24',
+          lastTransactionAmount: 100,
+          profile: guestProfile,
+          name: guestName,
+          company: null,
+          description: null,
+          image: null,
+          email: null,
+          newsletterOptIn: null,
+          twitter: null,
+          github: null,
+          website: null,
+        },
+      ];
+
+      (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithGuest));
+      const expectedJson = {
+        memberId: guestMemberId,
+        name: expectedName,
+        url: expectedUrl,
+        img: expectedImg,
+      };
+      const expectedContent = contentGenerator([expectedJson]);
+
+      await generate();
+
+      expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
+      expect(promises.writeFile).not.toHaveBeenCalledWith(`public/sponsors/${guestProfile.split('/').pop()}.png`, Buffer.from(new ArrayBuffer(26)));
+    },
+  );
+
+  const setupMocks = (prefetchSponsorFilePath?: string, prefetchSponsorFileContent?: string) => {
     vi.clearAllMocks();
 
     (promises.readFile as any).mockImplementation((path: string) => {
       if (path === 'public/logo.png') {
         return Promise.resolve(Buffer.from(new ArrayBuffer(26)));
+      }
+      if (path === prefetchSponsorFilePath) {
+        return Promise.resolve(prefetchSponsorFileContent);
       }
       return Promise.reject(new Error(`Unexpected file path: ${path}`));
     });

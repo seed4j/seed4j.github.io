@@ -125,13 +125,13 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
           memberId: 719393,
           name: 'Colin DAMON',
           url: 'https://opencollective.com/colin-damon',
-          img: '/sponsors/colin-damon.png',
+          img: '/sponsors/colin-damon-719393.png',
         },
         {
           memberId: 721000,
           name: 'Jane Doe',
           url: 'https://opencollective.com/jane-doe',
-          img: '/sponsors/jane-doe.png',
+          img: '/sponsors/jane-doe-721000.png',
         },
       ],
     },
@@ -144,7 +144,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
           memberId: 720740,
           name: 'Geoffray Gruel',
           url: 'https://opencollective.com/guest-b627ebd3',
-          img: '/sponsors/guest-b627ebd3.png',
+          img: '/sponsors/guest-b627ebd3-720740.png',
         },
       ],
     },
@@ -157,7 +157,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
           memberId: 721006,
           name: 'Avery Quinn',
           url: 'https://opencollective.com/avery-quinn',
-          img: '/sponsors/avery-quinn.png',
+          img: '/sponsors/avery-quinn-721006.png',
         },
       ],
     },
@@ -170,7 +170,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
           memberId: 721011,
           name: 'Elanor Voss',
           url: 'https://opencollective.com/elanor-voss',
-          img: '/sponsors/elanor-voss.png',
+          img: '/sponsors/elanor-voss-721011.png',
         },
       ],
     },
@@ -183,7 +183,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
           memberId: 721012,
           name: 'Kaelan Ryder',
           url: 'https://opencollective.com/kaelan-ryder',
-          img: '/sponsors/kaelan-ryder.png',
+          img: '/sponsors/kaelan-ryder-721012.png',
         },
       ],
     },
@@ -313,7 +313,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
           memberId: 721002,
           name: 'Alex Jones',
           url: 'https://alexjones.dev',
-          img: '/sponsors/alex-jones.png',
+          img: '/sponsors/alex-jones-721002.png',
         },
       ]);
 
@@ -392,14 +392,14 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
         memberId: 721003,
         name: 'Sam Taylor',
         url: 'https://samtaylor.dev',
-        img: '/sponsors/sam-taylor.png',
+        img: '/sponsors/sam-taylor-721003.png',
       },
     ]);
 
     await generate();
 
     expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
-    expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/sam-taylor.png', Buffer.from(new ArrayBuffer(16)));
+    expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/sam-taylor-721003.png', Buffer.from(new ArrayBuffer(16)));
   });
 
   it.each<{
@@ -441,7 +441,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
 
     await generate();
 
-    expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/jordan-lee.png', Buffer.from(new ArrayBuffer(26)));
+    expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/jordan-lee-721004.png', Buffer.from(new ArrayBuffer(26)));
   });
 
   it.each<{
@@ -487,7 +487,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
       await generate();
 
       expect(promises.writeFile).toHaveBeenCalledWith(filePath, expect.any(String), 'utf8');
-      expect(promises.writeFile).not.toHaveBeenCalledWith('public/sponsors/morgan-smith.png', Buffer.from(new ArrayBuffer(16)));
+      expect(promises.writeFile).not.toHaveBeenCalledWith('public/sponsors/morgan-smith-721005.png', Buffer.from(new ArrayBuffer(16)));
     },
   );
 
@@ -613,7 +613,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
       await generate();
 
       expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
-      expect(promises.writeFile).not.toHaveBeenCalledWith(`public/sponsors/${guestProfile.split('/').pop()}.png`, Buffer.from(new ArrayBuffer(26)));
+      expect(promises.writeFile).not.toHaveBeenCalledWith(`public/sponsors/${guestProfile.split('/').pop()}-${guestMemberId}.png`, Buffer.from(new ArrayBuffer(26)));
     },
   );
 
@@ -631,7 +631,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
     });
 
     (existsSync as any).mockImplementation((path: string) => {
-      return path === 'public/sponsors/morgan-smith.png';
+      return path === 'public/sponsors/morgan-smith-721005.png';
     });
   };
 

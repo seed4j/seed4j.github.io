@@ -1,8 +1,8 @@
 import type { OpenCollectiveTier } from './OpenCollectiveTier';
 
-type Seed4jMemberMemberId = number;
+export type Seed4jMemberMemberId = number;
 type Seed4jMemberCreatedAt = string;
-type Seed4jMemberProfile = string;
+export type Seed4jMemberProfile = string;
 type Seed4jMemberName = string;
 type Seed4jMemberCompany = string | null;
 type Seed4jMemberDescription = string | null;

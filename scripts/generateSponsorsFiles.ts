@@ -1,14 +1,15 @@
 import { existsSync, promises as nodePromises } from 'node:fs';
 import type { Sponsor } from '../.vitepress/data/sponsors/sponsors';
 import type { OpenCollectiveTier } from './OpenCollectiveTier';
-import type { Seed4jMember } from './Seed4jMember';
+import type { Seed4jMember, Seed4jMemberMemberId, Seed4jMemberProfile } from './Seed4jMember';
 
 type ImageDownloadInfoImageUrl = string | null;
 type ImageDownloadInfoProfile = string;
 type ImageDownloadInfoFilename = string;
 
 const readExistingSponsors = async (filePath: string): Promise<Sponsor[]> => {
-  return nodePromises.readFile(filePath, 'utf8')
+  return nodePromises
+    .readFile(filePath, 'utf8')
     .then(content => {
       const exportMatch = content.match(/export const \w+: Sponsor\[] = \[(.*?)];/s);
       if (!exportMatch) return [];
@@ -122,7 +123,7 @@ const mapToSponsor = (members: Seed4jMember[], existingSponsors: Sponsor[]): Spo
       memberId: member.MemberId,
       name: member.name,
       url: member.website ?? member.profile,
-      img: imageFilePath(member.profile),
+      img: imageFilePath(member.profile, member.MemberId),
     };
   });
 
@@ -136,17 +137,20 @@ const mapToImageDownloadInfo = (members: Seed4jMember[], existingSponsors: Spons
       return true;
     })
     .map(member => {
-      const profileUsername = member.profile.split('/').pop();
       return {
         imageUrl: member.image,
         profile: member.profile,
-        filename: profileUsername + IMAGE_EXTENSION,
+        filename: imageFileName(member.profile, member.MemberId),
       };
     });
 
-const imageFilePath = (profile: string): string => {
+const imageFilePath = (profile: Seed4jMemberProfile, memberId: Seed4jMemberMemberId): string => {
+  return `/sponsors/${imageFileName(profile, memberId)}`;
+};
+
+const imageFileName = (profile: Seed4jMemberProfile, memberId: Seed4jMemberMemberId): string => {
   const profileUsername = profile.split('/').pop();
-  return `/sponsors/${profileUsername}${IMAGE_EXTENSION}`;
+  return `${profileUsername}-${memberId}${IMAGE_EXTENSION}`;
 };
 
 const generateFileContent = (sponsors: Sponsor[], template: string): string => {

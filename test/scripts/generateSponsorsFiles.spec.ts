@@ -16,10 +16,6 @@ vi.mock('node:fs', () => ({
   existsSync: vi.fn(),
 }));
 
-const SPONSOR_TYPE_BACKERS = 'backers';
-const TIER_BACKERS = 'backer';
-const FILE_PATH_BACKERS = '.vitepress/data/sponsors/backers.ts';
-
 const SPONSOR_TYPE_BRONZE_SPONSORS = 'bronzes sponsors';
 const TIER_BRONZE_SPONSORS = 'Bronze sponsor';
 const FILE_PATH_BRONZE_SPONSORS = '.vitepress/data/sponsors/bronzeSponsors.ts';
@@ -37,24 +33,6 @@ const TIER_PLATINUM_SPONSORS = 'Platinum sponsor';
 const FILE_PATH_PLATINUM_SPONSORS = '.vitepress/data/sponsors/platinumSponsors.ts';
 
 describe('Generate sponsors data', () => {
-  const createExpectedBackersContent = (backers: Array<{ memberId: number; name: string; url: string; img: string }>) => {
-    const backersArray = backers
-      .map(
-        backer => `  {
-    memberId: ${backer.memberId},
-    name: '${backer.name}',
-    url: '${backer.url}',
-    img: '${backer.img}',
-  }`,
-      )
-      .join(',\n');
-
-    return `import type { Sponsor } from './sponsors';
-
-export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + ',\n' : ''}];
-`;
-  };
-
   const createExpectedBronzeSponsorsContent = (bronzes: Array<{ memberId: number; name: string; url: string; img: string }>) => {
     const bronzesArray = bronzes
       .map(
@@ -117,29 +95,16 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
 
   it.each([
     {
-      sponsorType: SPONSOR_TYPE_BACKERS,
-      filePath: FILE_PATH_BACKERS,
-      contentGenerator: createExpectedBackersContent,
+      sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
+      filePath: FILE_PATH_BRONZE_SPONSORS,
+      contentGenerator: createExpectedBronzeSponsorsContent,
       expectedData: [
-        {
-          memberId: 719393,
-          name: 'Colin DAMON',
-          url: 'https://opencollective.com/colin-damon',
-          img: '/sponsors/colin-damon-719393.png',
-        },
         {
           memberId: 721000,
           name: 'Jane Doe',
           url: 'https://opencollective.com/jane-doe',
           img: '/sponsors/jane-doe-721000.png',
         },
-      ],
-    },
-    {
-      sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
-      filePath: FILE_PATH_BRONZE_SPONSORS,
-      contentGenerator: createExpectedBronzeSponsorsContent,
-      expectedData: [
         {
           memberId: 720740,
           name: 'Geoffray Gruel',
@@ -199,12 +164,6 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
 
   it.each([
     {
-      tierToFilter: TIER_BACKERS,
-      sponsorType: SPONSOR_TYPE_BACKERS,
-      filePath: FILE_PATH_BACKERS,
-      contentGenerator: createExpectedBackersContent,
-    },
-    {
       tierToFilter: TIER_BRONZE_SPONSORS,
       sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
       filePath: FILE_PATH_BRONZE_SPONSORS,
@@ -248,12 +207,6 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
     filePath: string;
     contentGenerator: (data: any[]) => string;
   }>([
-    {
-      sponsorType: SPONSOR_TYPE_BACKERS,
-      tier: TIER_BACKERS,
-      filePath: FILE_PATH_BACKERS,
-      contentGenerator: createExpectedBackersContent,
-    },
     {
       sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
       tier: TIER_BRONZE_SPONSORS,
@@ -330,12 +283,6 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
     contentGenerator: (data: any[]) => string;
   }>([
     {
-      sponsorType: SPONSOR_TYPE_BACKERS,
-      tier: TIER_BACKERS,
-      filePath: FILE_PATH_BACKERS,
-      contentGenerator: createExpectedBackersContent,
-    },
-    {
       sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
       tier: TIER_BRONZE_SPONSORS,
       filePath: FILE_PATH_BRONZE_SPONSORS,
@@ -406,7 +353,6 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
     sponsorType: string;
     tier: OpenCollectiveTier;
   }>([
-    { sponsorType: SPONSOR_TYPE_BACKERS, tier: TIER_BACKERS },
     { sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS, tier: TIER_BRONZE_SPONSORS },
     { sponsorType: SPONSOR_TYPE_SILVER_SPONSORS, tier: TIER_SILVER_SPONSORS },
     { sponsorType: SPONSOR_TYPE_GOLD_SPONSORS, tier: TIER_GOLD_SPONSORS },
@@ -449,7 +395,6 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
     sponsorType: string;
     filePath: string;
   }>([
-    { tier: TIER_BACKERS, sponsorType: SPONSOR_TYPE_BACKERS, filePath: FILE_PATH_BACKERS },
     { tier: TIER_BRONZE_SPONSORS, sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS, filePath: FILE_PATH_BRONZE_SPONSORS },
     { tier: TIER_SILVER_SPONSORS, sponsorType: SPONSOR_TYPE_SILVER_SPONSORS, filePath: FILE_PATH_SILVER_SPONSORS },
     { tier: TIER_GOLD_SPONSORS, sponsorType: SPONSOR_TYPE_GOLD_SPONSORS, filePath: FILE_PATH_GOLD_SPONSORS },
@@ -503,18 +448,6 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
     expectedUrl: string;
     expectedImg: string;
   }>([
-    {
-      sponsorType: SPONSOR_TYPE_BACKERS,
-      tier: TIER_BACKERS,
-      filePath: FILE_PATH_BACKERS,
-      contentGenerator: createExpectedBackersContent,
-      guestMemberId: 720741,
-      guestProfile: 'https://opencollective.com/guest-a123xyz1',
-      guestName: 'Guest Backer',
-      expectedName: 'Guest Backer Test',
-      expectedUrl: 'https://guestbacker.dev',
-      expectedImg: '/sponsors/guest-backer.png',
-    },
     {
       sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
       tier: TIER_BRONZE_SPONSORS,
@@ -625,7 +558,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
 
     const defaultSponsorFileContent = `import type { Sponsor } from './sponsors';
 
-export const backer: Sponsor[] = [];
+export const silver: Sponsor[] = [];
 `;
 
     (promises.readFile as any).mockImplementation((path: string) => {
@@ -751,7 +684,7 @@ export const backer: Sponsor[] = [];
       createdAt: '2025-09-04 10:00',
       type: 'USER',
       role: 'BACKER',
-      tier: 'backer',
+      tier: 'Bronze sponsor',
       isActive: true,
       totalAmountDonated: 10,
       currency: 'USD',

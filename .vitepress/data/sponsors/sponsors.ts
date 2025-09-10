@@ -1,4 +1,3 @@
-import { backer } from './backers';
 import { bronze } from './bronzeSponsors';
 import { gold } from './goldSponsors';
 import { platinum } from './platinumSponsors';
@@ -11,7 +10,7 @@ export type Sponsor = {
   url: string;
 };
 
-type SponsorTier = 'platinum' | 'gold' | 'silver' | 'bronze' | 'backers';
+type SponsorTier = 'platinum' | 'gold' | 'silver' | 'bronze';
 
 type SponsorTierConfig = {
   tier: string;
@@ -24,7 +23,6 @@ const sponsorData = {
   gold: gold,
   silver: silver,
   bronze: bronze,
-  backers: backer,
 } satisfies Record<SponsorTier, Sponsor[]>;
 
 const tierConfig: Record<SponsorTier, { displayName: string; size: string }> = {
@@ -32,10 +30,9 @@ const tierConfig: Record<SponsorTier, { displayName: string; size: string }> = {
   gold: { displayName: 'Gold sponsors', size: 'medium' },
   silver: { displayName: 'Silver sponsors', size: 'small' },
   bronze: { displayName: 'Bronze sponsors', size: 'mini' },
-  backers: { displayName: 'Backers', size: 'xmini' },
 };
 
-const tierOrder: SponsorTier[] = ['platinum', 'gold', 'silver', 'bronze', 'backers'];
+const tierOrder: SponsorTier[] = ['platinum', 'gold', 'silver', 'bronze'];
 
 const generateSponsors = (): SponsorTierConfig[] => {
   const sponsorTiers: SponsorTierConfig[] = [];

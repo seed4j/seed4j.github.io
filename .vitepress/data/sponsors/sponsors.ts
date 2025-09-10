@@ -1,8 +1,8 @@
 import { backer } from './backers';
 import { bronze } from './bronzeSponsors';
-import { silver } from './silverSponsors';
 import { gold } from './goldSponsors';
 import { platinum } from './platinumSponsors';
+import { silver } from './silverSponsors';
 
 export type Sponsor = {
   memberId: number;
@@ -54,4 +54,4 @@ const generateSponsors = (): SponsorTierConfig[] => {
   return sponsorTiers;
 };
 
-export const sponsors= generateSponsors();
+export const sponsors = generateSponsors();

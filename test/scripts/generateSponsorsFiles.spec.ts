@@ -70,7 +70,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
     return `import type { Sponsor } from './sponsors';\n\nexport const bronze: Sponsor[] = [${bronzes.length > 0 ? '\n' + bronzesArray + ',\n' : ''}];\n`;
   };
 
-  const createExpectedSilversContent = (silvers: Array<{memberId: number; name: string; url: string; img: string }>) => {
+  const createExpectedSilversContent = (silvers: Array<{ memberId: number; name: string; url: string; img: string }>) => {
     const silversArray = silvers
       .map(
         silver => `  {
@@ -85,7 +85,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
     return `import type { Sponsor } from './sponsors';\n\nexport const silver: Sponsor[] = [${silvers.length > 0 ? '\n' + silversArray + ',\n' : ''}];\n`;
   };
 
-  const createExpectedGoldsContent = (golds: Array<{memberId: number; name: string; url: string; img: string }>) => {
+  const createExpectedGoldsContent = (golds: Array<{ memberId: number; name: string; url: string; img: string }>) => {
     const goldsArray = golds
       .map(
         gold => `  {
@@ -100,7 +100,7 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
     return `import type { Sponsor } from './sponsors';\n\nexport const gold: Sponsor[] = [${golds.length > 0 ? '\n' + goldsArray + ',\n' : ''}];\n`;
   };
 
-  const createExpectedPlatinumSponsorsContent = (platinumSponsors: Array<{memberId: number; name: string; url: string; img: string }>) => {
+  const createExpectedPlatinumSponsorsContent = (platinumSponsors: Array<{ memberId: number; name: string; url: string; img: string }>) => {
     const platinumSponsorsArray = platinumSponsors
       .map(
         platinumSponsor => `  {
@@ -613,19 +613,30 @@ export const backer: Sponsor[] = [${backers.length > 0 ? '\n' + backersArray + '
       await generate();
 
       expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
-      expect(promises.writeFile).not.toHaveBeenCalledWith(`public/sponsors/${guestProfile.split('/').pop()}-${guestMemberId}.png`, Buffer.from(new ArrayBuffer(26)));
+      expect(promises.writeFile).not.toHaveBeenCalledWith(
+        `public/sponsors/${guestProfile.split('/').pop()}-${guestMemberId}.png`,
+        Buffer.from(new ArrayBuffer(26)),
+      );
     },
   );
 
   const setupMocks = (prefetchSponsorFilePath?: string, prefetchSponsorFileContent?: string) => {
     vi.clearAllMocks();
 
+    const defaultSponsorFileContent = `import type { Sponsor } from './sponsors';
+
+export const backer: Sponsor[] = [];
+`;
+
     (promises.readFile as any).mockImplementation((path: string) => {
       if (path === 'public/logo.png') {
         return Promise.resolve(Buffer.from(new ArrayBuffer(26)));
       }
-      if (path === prefetchSponsorFilePath) {
+      if (prefetchSponsorFilePath && path === prefetchSponsorFilePath) {
         return Promise.resolve(prefetchSponsorFileContent);
+      }
+      if (path.includes('.vitepress/data/sponsors/') && path.endsWith('.ts')) {
+        return Promise.resolve(defaultSponsorFileContent);
       }
       return Promise.reject(new Error(`Unexpected file path: ${path}`));
     });

@@ -7,43 +7,6 @@ type ImageDownloadInfoImageUrl = string | null;
 type ImageDownloadInfoProfile = string;
 type ImageDownloadInfoFilename = string;
 
-const readExistingSponsors = async (filePath: string): Promise<Sponsor[]> => {
-  return nodePromises
-    .readFile(filePath, 'utf8')
-    .then(content => {
-      const exportMatch = content.match(/export const \w+: Sponsor\[] = \[(.*?)];/s);
-      if (!exportMatch) return [];
-
-      const arrayContent = exportMatch[1].trim();
-      if (!arrayContent) return [];
-
-      const sponsors: Sponsor[] = [];
-      const sponsorMatches = arrayContent.match(/\{[^}]+}/g);
-      if (!sponsorMatches) return [];
-
-      sponsorMatches.forEach(match => {
-        const memberIdMatch = match.match(/memberId:\s*(\d+)/);
-        const nameMatch = match.match(/name:\s*'([^']+)'/);
-        const urlMatch = match.match(/url:\s*'([^']+)'/);
-        const imgMatch = match.match(/img:\s*'([^']+)'/);
-
-        if (memberIdMatch && nameMatch && urlMatch && imgMatch) {
-          sponsors.push({
-            memberId: parseInt(memberIdMatch[1]),
-            name: nameMatch[1],
-            url: urlMatch[1],
-            img: imgMatch[1],
-          });
-        }
-      });
-
-      return sponsors;
-    })
-    .catch(() => []);
-};
-
-const guestMember = (member: Seed4jMember): boolean => member.profile.includes('guest-');
-
 type ImageDownloadInfo = {
   imageUrl: ImageDownloadInfoImageUrl;
   profile: ImageDownloadInfoProfile;
@@ -85,8 +48,8 @@ const PLATINUM_SPONSORS_FILE_TEMPLATE = `import type { Sponsor } from './sponsor
 export const platinum: Sponsor[] = [{{CONTENT}}];
 `;
 
-export async function generate(): Promise<void> {
-  return fetchSeed4jMembers().then(async seed4jMembers =>
+export function generate(): Promise<void> {
+  return fetchSeed4jMembers().then(seed4jMembers =>
     prefetchSponsors(seed4jMembers, 'backer', BACKERS_FILE_PATH, BACKERS_FILE_TEMPLATE)
       .then(() => prefetchSponsors(seed4jMembers, 'Bronze sponsor', BRONZE_SPONSORS_FILE_PATH, BRONZE_SPONSORS_FILE_TEMPLATE))
       .then(() => prefetchSponsors(seed4jMembers, 'Silver sponsor', SILVER_SPONSORS_FILE_PATH, SILVER_SPONSORS_FILE_TEMPLATE))
@@ -95,16 +58,43 @@ export async function generate(): Promise<void> {
   );
 }
 
-const fetchSeed4jMembers = async (): Promise<Seed4jMember[]> => fetch(OPEN_COLLECTIVE_API_URL).then(response => response.json());
+const fetchSeed4jMembers = (): Promise<Seed4jMember[]> => fetch(OPEN_COLLECTIVE_API_URL).then(response => response.json());
 
-const prefetchSponsors = async (seed4jMembers: Seed4jMember[], tier: OpenCollectiveTier, filePath: string, template: string) => {
-  const existingSponsors = await readExistingSponsors(filePath);
-  const activeSponsors = filterActiveSponsors(seed4jMembers, tier);
-  const sponsors = mapToSponsor(activeSponsors, existingSponsors);
-  const imageDownloadInfos = mapToImageDownloadInfo(activeSponsors, existingSponsors);
+const prefetchSponsors = (seed4jMembers: Seed4jMember[], tier: OpenCollectiveTier, filePath: string, template: string) => {
+  return readExistingSponsors(filePath).then(existingSponsors =>
+    (activeSponsors =>
+      nodePromises
+        .writeFile(filePath, generateFileContent(mapToSponsor(activeSponsors, existingSponsors), template), 'utf8')
+        .then(() => downloadAllImages(mapToImageDownloadInfo(activeSponsors, existingSponsors))))(
+      filterActiveSponsors(seed4jMembers, tier),
+    ),
+  );
+};
 
-  const fileContent = generateFileContent(sponsors, template);
-  return nodePromises.writeFile(filePath, fileContent, 'utf8').then(() => downloadAllImages(imageDownloadInfos));
+const readExistingSponsors = (filePath: string): Promise<Sponsor[]> => {
+  return nodePromises.readFile(filePath, 'utf8').then(content => {
+    const exportMatch = content.match(/export const \w+: Sponsor\[] = \[(.*?)];/s);
+    if (!exportMatch || !exportMatch[1].trim()) {
+      return [];
+    }
+
+    const arrayContent = exportMatch[1].trim();
+    const sponsorMatches = arrayContent.match(/\{[^}]+}/g);
+
+    return sponsorMatches.map(match => {
+      const memberIdMatch = match.match(/memberId:\s*(\d+)/)!;
+      const nameMatch = match.match(/name:\s*'([^']+)'/)!;
+      const urlMatch = match.match(/url:\s*'([^']+)'/)!;
+      const imgMatch = match.match(/img:\s*'([^']+)'/)!;
+
+      return {
+        memberId: parseInt(memberIdMatch[1]),
+        name: nameMatch[1],
+        url: urlMatch[1],
+        img: imgMatch[1],
+      };
+    });
+  });
 };
 
 const filterActiveSponsors = (members: Seed4jMember[], tier: OpenCollectiveTier): Seed4jMember[] =>
@@ -112,7 +102,7 @@ const filterActiveSponsors = (members: Seed4jMember[], tier: OpenCollectiveTier)
 
 const mapToSponsor = (members: Seed4jMember[], existingSponsors: Sponsor[]): Sponsor[] =>
   members.map(member => {
-    if (guestMember(member)) {
+    if (guestMember(member.profile)) {
       const existingSponsor = existingSponsors.find(sponsor => sponsor.memberId === member.MemberId);
       if (existingSponsor) {
         return existingSponsor;
@@ -127,10 +117,12 @@ const mapToSponsor = (members: Seed4jMember[], existingSponsors: Sponsor[]): Spo
     };
   });
 
+const guestMember = (profile: Seed4jMemberProfile): boolean => profile.includes('guest-');
+
 const mapToImageDownloadInfo = (members: Seed4jMember[], existingSponsors: Sponsor[]): ImageDownloadInfo[] =>
   members
     .filter(member => {
-      if (guestMember(member)) {
+      if (guestMember(member.profile)) {
         const existingSponsor = existingSponsors.find(sponsor => sponsor.memberId === member.MemberId);
         return !existingSponsor;
       }
@@ -174,24 +166,24 @@ const generateFileContent = (sponsors: Sponsor[], template: string): string => {
   return template.replace('{{CONTENT}}', sponsorsContent);
 };
 
-const downloadAllImages = async (imageInfos: ImageDownloadInfo[]): Promise<void> => {
+const downloadAllImages = (imageInfos: ImageDownloadInfo[]): Promise<void> => {
   const downloadPromises = imageInfos.map(imageInfo => downloadImage(imageInfo).catch(error => console.error(error)));
 
   return Promise.all(downloadPromises).then(() => undefined);
 };
 
-const downloadImage = async (imageInfo: ImageDownloadInfo): Promise<void> => {
+const downloadImage = (imageInfo: ImageDownloadInfo): Promise<void> => {
   if (!imageInfo.imageUrl) return usePlaceHolderImage(imageInfo.filename);
 
   return fetch(imageInfo.imageUrl)
     .then(imageResponse => imageResponse.arrayBuffer())
-    .then(async image => {
+    .then(image => {
       const filepath = `${SPONSORS_DIR}/${imageInfo.filename}`;
       return nodePromises.mkdir(SPONSORS_DIR, { recursive: true }).then(() => nodePromises.writeFile(filepath, Buffer.from(image)));
     });
 };
 
-const usePlaceHolderImage = async (filename: ImageDownloadInfoFilename) => {
+const usePlaceHolderImage = (filename: ImageDownloadInfoFilename) => {
   const filepath = `${SPONSORS_DIR}/${filename}`;
 
   if (existsSync(filepath)) return Promise.resolve();

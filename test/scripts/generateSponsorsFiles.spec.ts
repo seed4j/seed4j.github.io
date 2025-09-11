@@ -1,0 +1,835 @@
+import { Buffer } from 'buffer';
+import { existsSync, promises } from 'node:fs';
+import { describe, expect, it, vi } from 'vitest';
+import { generate } from '../../scripts/generateSponsorsFiles';
+import type { OpenCollectiveTier } from '../../scripts/OpenCollectiveTier';
+import type { Seed4jMember } from '../../scripts/Seed4jMember';
+
+global.fetch = vi.fn();
+
+vi.mock('node:fs', () => ({
+  promises: {
+    writeFile: vi.fn().mockResolvedValue(undefined),
+    mkdir: vi.fn().mockResolvedValue(undefined),
+    readFile: vi.fn(),
+  },
+  existsSync: vi.fn(),
+}));
+
+const SPONSOR_TYPE_BRONZE_SPONSORS = 'bronzes sponsors';
+const TIER_BRONZE_SPONSORS = 'Bronze sponsor';
+const FILE_PATH_BRONZE_SPONSORS = '.vitepress/data/sponsors/bronzeSponsors.ts';
+
+const SPONSOR_TYPE_SILVER_SPONSORS = 'silver sponsors';
+const TIER_SILVER_SPONSORS = 'Silver sponsor';
+const FILE_PATH_SILVER_SPONSORS = '.vitepress/data/sponsors/silverSponsors.ts';
+
+const SPONSOR_TYPE_GOLD_SPONSORS = 'gold sponsors';
+const TIER_GOLD_SPONSORS = 'Gold sponsor';
+const FILE_PATH_GOLD_SPONSORS = '.vitepress/data/sponsors/goldSponsors.ts';
+
+const SPONSOR_TYPE_PLATINUM_SPONSORS = 'platinum sponsors';
+const TIER_PLATINUM_SPONSORS = 'Platinum sponsor';
+const FILE_PATH_PLATINUM_SPONSORS = '.vitepress/data/sponsors/platinumSponsors.ts';
+
+describe('Generate sponsors data', () => {
+  const createExpectedBronzeSponsorsContent = (bronzes: Array<{ memberId: number; name: string; url: string; img: string }>) => {
+    const bronzesArray = bronzes
+      .map(
+        bronze => `  {
+    memberId: ${bronze.memberId},
+    name: '${bronze.name}',
+    url: '${bronze.url}',
+    img: '${bronze.img}',
+  }`,
+      )
+      .join(',\n');
+
+    return `import type { Sponsor } from './sponsors';\n\nexport const bronze: Sponsor[] = [${bronzes.length > 0 ? '\n' + bronzesArray + ',\n' : ''}];\n`;
+  };
+
+  const createExpectedSilversContent = (silvers: Array<{ memberId: number; name: string; url: string; img: string }>) => {
+    const silversArray = silvers
+      .map(
+        silver => `  {
+    memberId: ${silver.memberId},
+    name: '${silver.name}',
+    url: '${silver.url}',
+    img: '${silver.img}',
+  }`,
+      )
+      .join(',\n');
+
+    return `import type { Sponsor } from './sponsors';\n\nexport const silver: Sponsor[] = [${silvers.length > 0 ? '\n' + silversArray + ',\n' : ''}];\n`;
+  };
+
+  const createExpectedGoldsContent = (golds: Array<{ memberId: number; name: string; url: string; img: string }>) => {
+    const goldsArray = golds
+      .map(
+        gold => `  {
+    memberId: ${gold.memberId},
+    name: '${gold.name}',
+    url: '${gold.url}',
+    img: '${gold.img}',
+  }`,
+      )
+      .join(',\n');
+
+    return `import type { Sponsor } from './sponsors';\n\nexport const gold: Sponsor[] = [${golds.length > 0 ? '\n' + goldsArray + ',\n' : ''}];\n`;
+  };
+
+  const createExpectedPlatinumSponsorsContent = (platinumSponsors: Array<{ memberId: number; name: string; url: string; img: string }>) => {
+    const platinumSponsorsArray = platinumSponsors
+      .map(
+        platinumSponsor => `  {
+    memberId: ${platinumSponsor.memberId},
+    name: '${platinumSponsor.name}',
+    url: '${platinumSponsor.url}',
+    img: '${platinumSponsor.img}',
+  }`,
+      )
+      .join(',\n');
+
+    return `import type { Sponsor } from './sponsors';\n\nexport const platinum: Sponsor[] = [${platinumSponsors.length > 0 ? '\n' + platinumSponsorsArray + ',\n' : ''}];\n`;
+  };
+
+  it.each([
+    {
+      sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
+      filePath: FILE_PATH_BRONZE_SPONSORS,
+      contentGenerator: createExpectedBronzeSponsorsContent,
+      expectedData: [
+        {
+          memberId: 721000,
+          name: 'Jane Doe',
+          url: 'https://opencollective.com/jane-doe',
+          img: '/sponsors/jane-doe-721000.png',
+        },
+        {
+          memberId: 720740,
+          name: 'Geoffray Gruel',
+          url: 'https://opencollective.com/guest-b627ebd3',
+          img: '/sponsors/guest-b627ebd3-720740.png',
+        },
+      ],
+    },
+    {
+      sponsorType: SPONSOR_TYPE_SILVER_SPONSORS,
+      filePath: FILE_PATH_SILVER_SPONSORS,
+      contentGenerator: createExpectedSilversContent,
+      expectedData: [
+        {
+          memberId: 721006,
+          name: 'Avery Quinn',
+          url: 'https://opencollective.com/avery-quinn',
+          img: '/sponsors/avery-quinn-721006.png',
+        },
+      ],
+    },
+    {
+      sponsorType: SPONSOR_TYPE_GOLD_SPONSORS,
+      filePath: FILE_PATH_GOLD_SPONSORS,
+      contentGenerator: createExpectedGoldsContent,
+      expectedData: [
+        {
+          memberId: 721011,
+          name: 'Elanor Voss',
+          url: 'https://opencollective.com/elanor-voss',
+          img: '/sponsors/elanor-voss-721011.png',
+        },
+      ],
+    },
+    {
+      sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS,
+      filePath: FILE_PATH_PLATINUM_SPONSORS,
+      contentGenerator: createExpectedPlatinumSponsorsContent,
+      expectedData: [
+        {
+          memberId: 721012,
+          name: 'Kaelan Ryder',
+          url: 'https://opencollective.com/kaelan-ryder',
+          img: '/sponsors/kaelan-ryder-721012.png',
+        },
+      ],
+    },
+  ])('should generate $sponsorType data from open collective api', async ({ filePath, contentGenerator, expectedData }) => {
+    setupMocks();
+    (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersJson));
+    const expectedContent = contentGenerator(expectedData);
+
+    await generate();
+
+    expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
+  });
+
+  it.each([
+    {
+      tierToFilter: TIER_BRONZE_SPONSORS,
+      sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
+      filePath: FILE_PATH_BRONZE_SPONSORS,
+      contentGenerator: createExpectedBronzeSponsorsContent,
+    },
+    {
+      tierToFilter: TIER_SILVER_SPONSORS,
+      sponsorType: SPONSOR_TYPE_SILVER_SPONSORS,
+      filePath: FILE_PATH_SILVER_SPONSORS,
+      contentGenerator: createExpectedSilversContent,
+    },
+    {
+      tierToFilter: TIER_GOLD_SPONSORS,
+      sponsorType: SPONSOR_TYPE_GOLD_SPONSORS,
+      filePath: FILE_PATH_GOLD_SPONSORS,
+      contentGenerator: createExpectedGoldsContent,
+    },
+    {
+      tierToFilter: TIER_PLATINUM_SPONSORS,
+      sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS,
+      filePath: FILE_PATH_PLATINUM_SPONSORS,
+      contentGenerator: createExpectedPlatinumSponsorsContent,
+    },
+  ])(
+    'should generate empty $sponsorType when does not have sponsors for its specific tier',
+    async ({ tierToFilter, filePath, contentGenerator }) => {
+      setupMocks();
+      const seed4jMembersWithoutTierJson: Seed4jMember[] = seed4jMembersJson.filter(member => member.tier !== tierToFilter);
+      (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithoutTierJson));
+      const expectedContent = contentGenerator([]);
+
+      await generate();
+
+      expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
+    },
+  );
+
+  it.each<{
+    sponsorType: string;
+    tier: OpenCollectiveTier;
+    filePath: string;
+    contentGenerator: (data: any[]) => string;
+  }>([
+    {
+      sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
+      tier: TIER_BRONZE_SPONSORS,
+      filePath: FILE_PATH_BRONZE_SPONSORS,
+      contentGenerator: createExpectedBronzeSponsorsContent,
+    },
+    {
+      sponsorType: SPONSOR_TYPE_SILVER_SPONSORS,
+      tier: TIER_SILVER_SPONSORS,
+      filePath: FILE_PATH_SILVER_SPONSORS,
+      contentGenerator: createExpectedSilversContent,
+    },
+    {
+      sponsorType: SPONSOR_TYPE_GOLD_SPONSORS,
+      tier: TIER_GOLD_SPONSORS,
+      filePath: FILE_PATH_GOLD_SPONSORS,
+      contentGenerator: createExpectedGoldsContent,
+    },
+    {
+      sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS,
+      tier: TIER_PLATINUM_SPONSORS,
+      filePath: FILE_PATH_PLATINUM_SPONSORS,
+      contentGenerator: createExpectedPlatinumSponsorsContent,
+    },
+  ])(
+    'should give preference to use the user website instead of the open collective profile url for $sponsorType',
+    async ({ tier, filePath, contentGenerator }) => {
+      setupMocks();
+      const seed4jMembersWithWebsiteJson: Seed4jMember[] = [
+        {
+          MemberId: 721002,
+          createdAt: '2025-09-04 12:00',
+          type: 'USER',
+          role: 'BACKER',
+          tier,
+          isActive: true,
+          totalAmountDonated: 50,
+          currency: 'USD',
+          lastTransactionAt: '2025-09-04 12:00',
+          lastTransactionAmount: 50,
+          profile: 'https://opencollective.com/alex-jones',
+          name: 'Alex Jones',
+          company: null,
+          description: 'Supporter of open source initiatives.',
+          image: null,
+          email: 'alex.jones@example.com',
+          newsletterOptIn: false,
+          twitter: 'https://twitter.com/alexjones',
+          github: 'https://github.com/alexjones',
+          website: 'https://alexjones.dev',
+        },
+      ];
+      (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithWebsiteJson));
+
+      const expectedContent = contentGenerator([
+        {
+          memberId: 721002,
+          name: 'Alex Jones',
+          url: 'https://alexjones.dev',
+          img: '/sponsors/alex-jones-721002.png',
+        },
+      ]);
+
+      await generate();
+
+      expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
+    },
+  );
+
+  it.each<{
+    sponsorType: string;
+    tier: OpenCollectiveTier;
+    filePath: string;
+    contentGenerator: (data: any[]) => string;
+  }>([
+    {
+      sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
+      tier: TIER_BRONZE_SPONSORS,
+      filePath: FILE_PATH_BRONZE_SPONSORS,
+      contentGenerator: createExpectedBronzeSponsorsContent,
+    },
+    {
+      sponsorType: SPONSOR_TYPE_SILVER_SPONSORS,
+      tier: TIER_SILVER_SPONSORS,
+      filePath: FILE_PATH_SILVER_SPONSORS,
+      contentGenerator: createExpectedSilversContent,
+    },
+    {
+      sponsorType: SPONSOR_TYPE_GOLD_SPONSORS,
+      tier: TIER_GOLD_SPONSORS,
+      filePath: FILE_PATH_GOLD_SPONSORS,
+      contentGenerator: createExpectedGoldsContent,
+    },
+    {
+      sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS,
+      tier: TIER_PLATINUM_SPONSORS,
+      filePath: FILE_PATH_PLATINUM_SPONSORS,
+      contentGenerator: createExpectedPlatinumSponsorsContent,
+    },
+  ])('should download image from open collective api for $sponsorType', async ({ tier, filePath, contentGenerator }) => {
+    setupMocks();
+    const seed4jMembersWithImageJson: Seed4jMember[] = [
+      {
+        MemberId: 721003,
+        createdAt: '2025-09-04 13:00',
+        type: 'USER',
+        role: 'BACKER',
+        tier,
+        isActive: true,
+        totalAmountDonated: 20,
+        currency: 'USD',
+        lastTransactionAt: '2025-09-04 13:00',
+        lastTransactionAmount: 20,
+        profile: 'https://opencollective.com/sam-taylor',
+        name: 'Sam Taylor',
+        company: null,
+        description: 'Avid supporter of community-driven projects.',
+        image: 'https://www.gravatar.com/avatar/11223344556677889900aabbccddeeff?default=404',
+        email: 'sam.taylor@example.com',
+        newsletterOptIn: true,
+        twitter: 'https://twitter.com/samtaylor',
+        github: 'https://github.com/samtaylor',
+        website: 'https://samtaylor.dev',
+      },
+    ];
+    (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithImageJson));
+
+    const expectedContent = contentGenerator([
+      {
+        memberId: 721003,
+        name: 'Sam Taylor',
+        url: 'https://samtaylor.dev',
+        img: '/sponsors/sam-taylor-721003.png',
+      },
+    ]);
+
+    await generate();
+
+    expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
+    expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/sam-taylor-721003.png', Buffer.from(new ArrayBuffer(16)));
+  });
+
+  it.each<{
+    sponsorType: string;
+    tier: OpenCollectiveTier;
+  }>([
+    { sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS, tier: TIER_BRONZE_SPONSORS },
+    { sponsorType: SPONSOR_TYPE_SILVER_SPONSORS, tier: TIER_SILVER_SPONSORS },
+    { sponsorType: SPONSOR_TYPE_GOLD_SPONSORS, tier: TIER_GOLD_SPONSORS },
+    { sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS, tier: TIER_PLATINUM_SPONSORS },
+  ])('should use the seed4j logo as a placeholder for open collective members without an image for $sponsorType', async ({ tier }) => {
+    setupMocks();
+    const seed4jMembersWithoutImageJson: Seed4jMember[] = [
+      {
+        MemberId: 721004,
+        createdAt: '2025-09-04 14:00',
+        type: 'USER',
+        role: 'BACKER',
+        tier,
+        isActive: true,
+        totalAmountDonated: 30,
+        currency: 'USD',
+        lastTransactionAt: '2025-09-04 14:00',
+        lastTransactionAmount: 30,
+        profile: 'https://opencollective.com/jordan-lee',
+        name: 'Jordan Lee',
+        company: null,
+        description: 'Enthusiastic about supporting open-source projects.',
+        image: null,
+        email: 'jordan.lee@example.com',
+        newsletterOptIn: false,
+        twitter: null,
+        github: null,
+        website: null,
+      },
+    ];
+    (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithoutImageJson));
+
+    await generate();
+
+    expect(promises.writeFile).toHaveBeenCalledWith('public/sponsors/jordan-lee-721004.png', Buffer.from(new ArrayBuffer(26)));
+  });
+
+  it.each<{
+    tier: OpenCollectiveTier;
+    sponsorType: string;
+    filePath: string;
+  }>([
+    { tier: TIER_BRONZE_SPONSORS, sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS, filePath: FILE_PATH_BRONZE_SPONSORS },
+    { tier: TIER_SILVER_SPONSORS, sponsorType: SPONSOR_TYPE_SILVER_SPONSORS, filePath: FILE_PATH_SILVER_SPONSORS },
+    { tier: TIER_GOLD_SPONSORS, sponsorType: SPONSOR_TYPE_GOLD_SPONSORS, filePath: FILE_PATH_GOLD_SPONSORS },
+    { tier: TIER_PLATINUM_SPONSORS, sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS, filePath: FILE_PATH_PLATINUM_SPONSORS },
+  ])(
+    'should prevent overwriting an existing user image with seed4j logo even if the user does not have an image from the open collective api for $sponsorType',
+    async ({ tier, filePath }) => {
+      setupMocks();
+      const seed4jMembersWithoutImageJson: Seed4jMember[] = [
+        {
+          MemberId: 721005,
+          createdAt: '2025-09-05 10:00',
+          type: 'USER',
+          role: 'BACKER',
+          tier,
+          isActive: true,
+          totalAmountDonated: 40,
+          currency: 'USD',
+          lastTransactionAt: '2025-09-05 10:00',
+          lastTransactionAmount: 10,
+          profile: 'https://opencollective.com/morgan-smith',
+          name: 'Morgan Smith',
+          company: null,
+          description: 'Passionate about contributing to tech communities.',
+          image: null,
+          email: 'morgan.smith@example.com',
+          newsletterOptIn: true,
+          twitter: null,
+          github: null,
+          website: null,
+        },
+      ];
+      (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithoutImageJson));
+
+      await generate();
+
+      expect(promises.writeFile).toHaveBeenCalledWith(filePath, expect.any(String), 'utf8');
+      expect(promises.writeFile).not.toHaveBeenCalledWith('public/sponsors/morgan-smith-721005.png', Buffer.from(new ArrayBuffer(16)));
+    },
+  );
+
+  it.each<{
+    sponsorType: string;
+    tier: OpenCollectiveTier;
+    filePath: string;
+    contentGenerator: (data: any[]) => string;
+    guestMemberId: number;
+    guestProfile: string;
+    guestName: string;
+    expectedName: string;
+    expectedUrl: string;
+    expectedImg: string;
+  }>([
+    {
+      sponsorType: SPONSOR_TYPE_BRONZE_SPONSORS,
+      tier: TIER_BRONZE_SPONSORS,
+      filePath: FILE_PATH_BRONZE_SPONSORS,
+      contentGenerator: createExpectedBronzeSponsorsContent,
+      guestMemberId: 720751,
+      guestProfile: 'https://opencollective.com/guest-b6271234',
+      guestName: 'Guest Bronze',
+      expectedName: 'Guest Bronze Test',
+      expectedUrl: 'https://guestbronze.dev',
+      expectedImg: '/sponsors/guest-bronze.png',
+    },
+    {
+      sponsorType: SPONSOR_TYPE_SILVER_SPONSORS,
+      tier: TIER_SILVER_SPONSORS,
+      filePath: FILE_PATH_SILVER_SPONSORS,
+      contentGenerator: createExpectedSilversContent,
+      guestMemberId: 720742,
+      guestProfile: 'https://opencollective.com/guest-c789def2',
+      guestName: 'Guest Silver',
+      expectedName: 'Guest Silver Test',
+      expectedUrl: 'https://guestsilver.dev',
+      expectedImg: '/sponsors/guest-silver.png',
+    },
+    {
+      sponsorType: SPONSOR_TYPE_GOLD_SPONSORS,
+      tier: TIER_GOLD_SPONSORS,
+      filePath: FILE_PATH_GOLD_SPONSORS,
+      contentGenerator: createExpectedGoldsContent,
+      guestMemberId: 720743,
+      guestProfile: 'https://opencollective.com/guest-d456ghi3',
+      guestName: 'Guest Gold',
+      expectedName: 'Guest Gold Test',
+      expectedUrl: 'https://guestgold.dev',
+      expectedImg: '/sponsors/guest-gold.png',
+    },
+    {
+      sponsorType: SPONSOR_TYPE_PLATINUM_SPONSORS,
+      tier: TIER_PLATINUM_SPONSORS,
+      filePath: FILE_PATH_PLATINUM_SPONSORS,
+      contentGenerator: createExpectedPlatinumSponsorsContent,
+      guestMemberId: 720744,
+      guestProfile: 'https://opencollective.com/guest-e789jkl4',
+      guestName: 'Guest Platinum',
+      expectedName: 'Guest Platinum Test',
+      expectedUrl: 'https://guestplatinum.dev',
+      expectedImg: '/sponsors/guest-platinum.png',
+    },
+  ])(
+    'should use existing prefetch member name, URL, and image if it is identified as a guest in OpenCollective for $sponsorType',
+    async ({ tier, filePath, contentGenerator, guestMemberId, guestProfile, guestName, expectedName, expectedUrl, expectedImg }) => {
+      const prefetchFileContent = contentGenerator([
+        {
+          memberId: guestMemberId,
+          name: expectedName,
+          url: expectedUrl,
+          img: expectedImg,
+        },
+      ]);
+      setupMocks(filePath, prefetchFileContent);
+
+      const seed4jMembersWithGuest: Seed4jMember[] = [
+        {
+          MemberId: guestMemberId,
+          createdAt: '2025-08-18 14:24',
+          type: 'USER',
+          role: 'BACKER',
+          tier,
+          isActive: true,
+          totalAmountDonated: 100,
+          currency: 'USD',
+          lastTransactionAt: '2025-08-18 14:24',
+          lastTransactionAmount: 100,
+          profile: guestProfile,
+          name: guestName,
+          company: null,
+          description: null,
+          image: null,
+          email: null,
+          newsletterOptIn: null,
+          twitter: null,
+          github: null,
+          website: null,
+        },
+      ];
+
+      (global.fetch as any).mockImplementation(createMockFetchForMembers(seed4jMembersWithGuest));
+      const expectedJson = {
+        memberId: guestMemberId,
+        name: expectedName,
+        url: expectedUrl,
+        img: expectedImg,
+      };
+      const expectedContent = contentGenerator([expectedJson]);
+
+      await generate();
+
+      expect(promises.writeFile).toHaveBeenCalledWith(filePath, expectedContent, 'utf8');
+      expect(promises.writeFile).not.toHaveBeenCalledWith(
+        `public/sponsors/${guestProfile.split('/').pop()}-${guestMemberId}.png`,
+        Buffer.from(new ArrayBuffer(26)),
+      );
+    },
+  );
+
+  const setupMocks = (prefetchSponsorFilePath?: string, prefetchSponsorFileContent?: string) => {
+    vi.clearAllMocks();
+
+    const defaultSponsorFileContent = `import type { Sponsor } from './sponsors';
+
+export const silver: Sponsor[] = [];
+`;
+
+    (promises.readFile as any).mockImplementation((path: string) => {
+      if (path === 'public/logo.png') {
+        return Promise.resolve(Buffer.from(new ArrayBuffer(26)));
+      }
+      if (prefetchSponsorFilePath && path === prefetchSponsorFilePath) {
+        return Promise.resolve(prefetchSponsorFileContent);
+      }
+      if (path.includes('.vitepress/data/sponsors/') && path.endsWith('.ts')) {
+        return Promise.resolve(defaultSponsorFileContent);
+      }
+      return Promise.reject(new Error(`Unexpected file path: ${path}`));
+    });
+
+    (existsSync as any).mockImplementation((path: string) => {
+      return path === 'public/sponsors/morgan-smith-721005.png';
+    });
+  };
+
+  const createMockFetchForMembers = (members: Seed4jMember[]) => {
+    return (url: string) => {
+      if (url === 'https://opencollective.com/seed4j/members.json') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(members),
+        });
+      }
+      if (url === 'https://www.gravatar.com/avatar/11223344556677889900aabbccddeeff?default=404') {
+        return Promise.resolve({
+          ok: true,
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(16)),
+        });
+      }
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    };
+  };
+
+  const seed4jMembersJson: Seed4jMember[] = [
+    {
+      MemberId: 717245,
+      createdAt: '2025-08-07 09:29',
+      type: 'USER',
+      role: 'ADMIN',
+      isActive: true,
+      totalAmountDonated: 0,
+      lastTransactionAt: '2025-08-29 14:03',
+      lastTransactionAmount: 0,
+      profile: 'https://opencollective.com/pascalgrimaud',
+      name: 'Pascal Grimaud',
+      company: null,
+      description: 'Freelance, Full Stack Java Developer',
+      image: 'https://www.gravatar.com/avatar/ebc22ec8211c37e9a429043127a538d8?default=404',
+      email: null,
+      newsletterOptIn: null,
+      twitter: 'https://twitter.com/pascalgrimaud',
+      github: 'https://github.com/pascalgrimaud',
+      website: 'https://github.com/pascalgrimaud',
+    },
+    {
+      MemberId: 717246,
+      createdAt: '2025-08-07 09:29',
+      type: 'ORGANIZATION',
+      role: 'HOST',
+      isActive: true,
+      totalAmountDonated: 0,
+      currency: 'USD',
+      lastTransactionAt: '2025-08-18 14:24',
+      lastTransactionAmount: -10,
+      profile: 'https://opencollective.com/opensource',
+      name: 'Open Source Collective',
+      company: null,
+      description: 'Non-profit fiscal host promoting a healthy and sustainable open source ecosystem.',
+      image: 'https://opencollective-production.s3.us-west-1.amazonaws.com/97017710-a90f-11e9-b6fb-2bbe7128f780.png',
+      twitter: 'https://twitter.com/OpenSourceColl',
+      github: null,
+      website: 'https://oscollective.org/',
+    },
+    {
+      MemberId: 717557,
+      createdAt: '2025-08-07 21:20',
+      type: 'USER',
+      role: 'ADMIN',
+      isActive: true,
+      totalAmountDonated: 0,
+      lastTransactionAt: '2025-08-29 14:03',
+      lastTransactionAmount: 0,
+      profile: 'https://opencollective.com/murdos',
+      name: 'Aurélien Mino',
+      company: null,
+      description: null,
+      image: 'https://www.gravatar.com/avatar/4a7114e5d4b11c624793b73452d2576f?default=404',
+      email: null,
+      newsletterOptIn: null,
+      twitter: null,
+      github: null,
+      website: null,
+    },
+    {
+      MemberId: 719393,
+      createdAt: '2025-08-13 16:26',
+      type: 'USER',
+      role: 'BACKER',
+      tier: 'backer',
+      isActive: true,
+      totalAmountDonated: 10,
+      currency: 'EUR',
+      lastTransactionAt: '2025-08-13 16:26',
+      lastTransactionAmount: 10,
+      profile: 'https://opencollective.com/colin-damon',
+      name: 'Colin DAMON',
+      company: null,
+      description: null,
+      image: null,
+      email: null,
+      newsletterOptIn: null,
+      twitter: null,
+      github: null,
+      website: null,
+    },
+    {
+      MemberId: 721000,
+      createdAt: '2025-09-04 10:00',
+      type: 'USER',
+      role: 'BACKER',
+      tier: 'Bronze sponsor',
+      isActive: true,
+      totalAmountDonated: 10,
+      currency: 'USD',
+      lastTransactionAt: '2025-09-04 10:00',
+      lastTransactionAmount: 10,
+      profile: 'https://opencollective.com/jane-doe',
+      name: 'Jane Doe',
+      company: 'Tech Innovations Inc.',
+      description: 'Enthusiastic supporter of open source projects.',
+      image: null,
+      email: 'jane.doe@example.com',
+      newsletterOptIn: true,
+      twitter: 'https://twitter.com/janedoe',
+      github: 'https://github.com/janedoe',
+      website: null,
+    },
+    {
+      MemberId: 721001,
+      createdAt: '2025-09-04 11:00',
+      type: 'USER',
+      role: 'BACKER',
+      tier: 'backer',
+      isActive: false,
+      totalAmountDonated: 10,
+      currency: 'USD',
+      lastTransactionAt: '2025-09-04 11:00',
+      lastTransactionAmount: 10,
+      profile: 'https://opencollective.com/john-smith',
+      name: 'John Smith',
+      company: 'Innovatech Solutions',
+      description: 'Passionate about supporting innovative tech solutions.',
+      image: 'https://www.gravatar.com/avatar/abcdef1234567890abcdef1234567890?default=404',
+      email: 'john.smith@example.com',
+      newsletterOptIn: true,
+      twitter: 'https://twitter.com/johnsmith',
+      github: 'https://github.com/johnsmith',
+      website: 'https://johnsmith.com',
+    },
+    {
+      MemberId: 719395,
+      createdAt: '2025-08-13 16:33',
+      type: 'USER',
+      role: 'ADMIN',
+      isActive: true,
+      totalAmountDonated: 10,
+      lastTransactionAt: '2025-08-29 14:03',
+      lastTransactionAmount: 0,
+      profile: 'https://opencollective.com/colin-damon',
+      name: 'Colin DAMON',
+      company: null,
+      description: null,
+      image: null,
+      email: null,
+      newsletterOptIn: null,
+      twitter: null,
+      github: null,
+      website: null,
+    },
+    {
+      MemberId: 720740,
+      createdAt: '2025-08-18 14:24',
+      type: 'USER',
+      role: 'BACKER',
+      tier: 'Bronze sponsor',
+      isActive: true,
+      totalAmountDonated: 100,
+      currency: 'USD',
+      lastTransactionAt: '2025-08-18 14:24',
+      lastTransactionAmount: 100,
+      profile: 'https://opencollective.com/guest-b627ebd3',
+      name: 'Geoffray Gruel',
+      company: null,
+      description: null,
+      image: null,
+      email: null,
+      newsletterOptIn: null,
+      twitter: null,
+      github: null,
+      website: null,
+    },
+    {
+      MemberId: 721006,
+      createdAt: '2025-09-06 11:00',
+      type: 'USER',
+      role: 'BACKER',
+      tier: 'Silver sponsor',
+      isActive: true,
+      totalAmountDonated: 500,
+      currency: 'USD',
+      lastTransactionAt: '2025-09-06 11:00',
+      lastTransactionAmount: 500,
+      profile: 'https://opencollective.com/avery-quinn',
+      name: 'Avery Quinn',
+      company: null,
+      description: null,
+      image: null,
+      email: null,
+      newsletterOptIn: null,
+      twitter: null,
+      github: null,
+      website: null,
+    },
+    {
+      MemberId: 721011,
+      createdAt: '2025-09-08 16:00',
+      type: 'USER',
+      role: 'BACKER',
+      tier: 'Gold sponsor',
+      isActive: true,
+      totalAmountDonated: 500,
+      currency: 'USD',
+      lastTransactionAt: '2025-09-08 16:00',
+      lastTransactionAmount: 500,
+      profile: 'https://opencollective.com/elanor-voss',
+      name: 'Elanor Voss',
+      company: null,
+      description: null,
+      image: null,
+      email: null,
+      newsletterOptIn: null,
+      twitter: null,
+      github: null,
+      website: null,
+    },
+    {
+      MemberId: 721012,
+      createdAt: '2025-09-08 17:00',
+      type: 'USER',
+      role: 'BACKER',
+      tier: 'Platinum sponsor',
+      isActive: true,
+      totalAmountDonated: 500,
+      currency: 'USD',
+      lastTransactionAt: '2025-09-08 17:00',
+      lastTransactionAmount: 500,
+      profile: 'https://opencollective.com/kaelan-ryder',
+      name: 'Kaelan Ryder',
+      company: null,
+      description: null,
+      image: null,
+      email: null,
+      newsletterOptIn: null,
+      twitter: null,
+      github: null,
+      website: null,
+    },
+  ];
+});

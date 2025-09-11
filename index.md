@@ -42,5 +42,3 @@ features:
     title: Open Source & Community-Driven
     details: Fully open source, welcoming contributions and ideas to grow together.
 ---
-
-<Sponsors />

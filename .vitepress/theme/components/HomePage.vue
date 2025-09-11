@@ -40,7 +40,6 @@ onUnmounted(() => {
                 <object
                   :data="`https://opencollective.com/seed4j/tiers/backers.svg?avatarHeight=40&width=${backersImageWidth}&button=false`"
                   type="image/svg+xml"
-                  class="backers-svg"
                   aria-label="Backers"
                 >
                   Backers
@@ -57,55 +56,65 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped>
+<style>
 .VPHomeSponsors {
-  margin: 96px 0 0 0;
+  margin: 96px 0 0 0 !important;
 }
 
-:deep(.vp-sponsor) {
+.vp-sponsor {
   border-radius: 16px 16px 0 0 !important;
 }
 
-:deep(.vp-sponsor-grid-image) {
+.vp-sponsor-grid-image {
   max-width: 100%;
   filter: none !important;
   transition: filter 0.25s;
   border-radius: 50%;
 }
 
-:deep(.dark .vp-sponsor-grid-image) {
+.dark .vp-sponsor-grid-image {
   filter: none !important;
 }
 
-:deep(.dark .vp-sponsor-grid-item:hover) {
+.dark .vp-sponsor-grid-item:hover {
   background-color: var(--vp-c-bg-soft) !important;
 }
 
-
-:deep(.vp-sponsor-grid.xmini .vp-sponsor-grid-image) {
+.vp-sponsor-grid.xmini .vp-sponsor-grid-image {
   max-width: 64px;
   max-height: 35px !important;
 }
 
-:deep(.vp-sponsor-grid.mini .vp-sponsor-grid-image) {
+.vp-sponsor-grid.mini .vp-sponsor-grid-image {
   max-width: 96px;
   max-height: 40px !important;
 }
 
-:deep(.vp-sponsor-grid.small .vp-sponsor-grid-image) {
+.vp-sponsor-grid.small .vp-sponsor-grid-image {
   max-width: 96px;
   max-height: 45px !important;
 }
 
-:deep(.vp-sponsor-grid.medium .vp-sponsor-grid-image) {
+.vp-sponsor-grid.medium .vp-sponsor-grid-image {
   max-width: 120px;
   max-height: 50px !important;
 }
 
-:deep(.vp-sponsor-grid.big .vp-sponsor-grid-image) {
+.vp-sponsor-grid.big .vp-sponsor-grid-image {
   max-width: 192px;
   max-height: 60px !important;
 }
+
+.dark .vp-sponsor-grid-image {
+  filter: none !important;
+}
+
+.dark .vp-sponsor-grid-item:hover {
+  background-color: var(--vp-c-default-soft) !important;
+}
+</style>
+
+<style scoped>
 
 .vp-backer {
   padding: 0 24px;
@@ -153,8 +162,8 @@ onUnmounted(() => {
   transition: background-color 0.25s;
 }
 
-.backers-svg {
-  background-color: var(--vp-c-bg-soft);
+object {
+  color-scheme: light;
 }
 
 .action {

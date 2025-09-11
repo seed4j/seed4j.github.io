@@ -40,7 +40,6 @@ onUnmounted(() => {
                 <object
                   :data="`https://opencollective.com/seed4j/tiers/backers.svg?avatarHeight=40&width=${backersImageWidth}&button=false`"
                   type="image/svg+xml"
-                  class="backers-svg"
                   aria-label="Backers"
                 >
                   Backers
@@ -80,7 +79,6 @@ onUnmounted(() => {
 :deep(.dark .vp-sponsor-grid-item:hover) {
   background-color: var(--vp-c-bg-soft) !important;
 }
-
 
 :deep(.vp-sponsor-grid.xmini .vp-sponsor-grid-image) {
   max-width: 64px;
@@ -153,8 +151,8 @@ onUnmounted(() => {
   transition: background-color 0.25s;
 }
 
-.backers-svg {
-  background-color: var(--vp-c-bg-soft);
+object {
+  color-scheme: light;
 }
 
 .action {

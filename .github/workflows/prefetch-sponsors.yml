@@ -51,3 +51,4 @@ jobs:
             Changes include updates to sponsor files based on the latest data from OpenCollective.
           branch: prefetch-sponsors/update-sponsor-data
           delete-branch: true
+          reviewers: renanfranca

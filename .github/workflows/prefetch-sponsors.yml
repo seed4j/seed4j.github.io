@@ -1,7 +1,5 @@
 name: prefetch-sponsors
 on:
-  schedule:
-    - cron: '*/15 * * * *'  # Run every 15 minutes
   workflow_dispatch:  # Allow manual triggering
 
 jobs:

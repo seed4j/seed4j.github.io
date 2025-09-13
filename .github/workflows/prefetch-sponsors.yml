@@ -1,0 +1,52 @@
+name: prefetch-sponsors
+on:
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  prefetch-sponsors:
+    name: prefetch-sponsors
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 'Setup: checkout project'
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Setup: environment'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: 'Init: install Node.js packages'
+        run: npm ci
+
+      - name: 'Run: prefetch sponsors'
+        run: npm run prefetch-sponsors
+
+      - name: 'Check: for changes'
+        id: check-changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes detected"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 'Create: pull request'
+        if: steps.check-changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'Prefetch-sponsors: update sponsor data'
+          title: 'Prefetch-sponsors: update sponsor data'
+          body: |
+            This PR was automatically created to update sponsor data.
+
+            Changes include updates to sponsor files based on the latest data from OpenCollective.
+          branch: prefetch-sponsors/update-sponsor-data
+          delete-branch: true
+          reviewers: renanfranca

@@ -11,6 +11,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/docs/guide/getting-started' },
       { text: 'Use Cases', link: '/docs/use-cases/list' },
+      { text: 'Team', link: '/docs/team'}
     ],
     sidebar: [
       {

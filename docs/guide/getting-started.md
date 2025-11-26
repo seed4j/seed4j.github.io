@@ -8,7 +8,7 @@ title: Getting Started | Guide
 
 ### Java
 
-You need [Java 21](https://openjdk.java.net/projects/jdk/21/).
+You need [Java 25](https://openjdk.java.net/projects/jdk/25/).
 
 ### Node.js and npm
 
@@ -31,10 +31,10 @@ Example output:
 
 ```
 ➜ java -version && javac -version
-openjdk version "21.0.8" 2025-07-15
-OpenJDK Runtime Environment (build 21.0.8+9-Ubuntu-0ubuntu124.04.1)
-OpenJDK 64-Bit Server VM (build 21.0.8+9-Ubuntu-0ubuntu124.04.1, mixed mode, sharing)
-javac 21.0.8
+openjdk version "25.0.1" 2025-10-21
+OpenJDK Runtime Environment (build 25.0.1+9-Ubuntu-0ubuntu124.04.1)
+OpenJDK 64-Bit Server VM (build 25.0.1+9-Ubuntu-0ubuntu124.04.1, mixed mode, sharing)
+javac 25.0.1
 
 ➜ node -v && npm -v
 v22.17.1

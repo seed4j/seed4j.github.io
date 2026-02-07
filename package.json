@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@prettier/plugin-xml": "3.4.2",
-    "@types/node": "24.10.9",
+    "@types/node": "24.10.10",
     "@vitest/coverage-v8": "4.0.18",
     "husky": "9.1.7",
     "lint-staged": "16.2.7",

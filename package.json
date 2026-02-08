@@ -33,7 +33,7 @@
     "vitepress": "1.6.4",
     "vitest": "4.0.18"
   },
-  "packageManager": "npm@11.8.0",
+  "packageManager": "npm@11.9.0",
   "engines": {
     "node": ">=22"
   }

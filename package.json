@@ -24,7 +24,7 @@
     "@vitest/coverage-v8": "4.1.9",
     "husky": "9.1.7",
     "lint-staged": "17.0.8",
-    "prettier": "3.8.4",
+    "prettier": "3.8.5",
     "prettier-plugin-gherkin": "4.0.0",
     "prettier-plugin-java": "2.10.1",
     "prettier-plugin-organize-imports": "4.3.0",

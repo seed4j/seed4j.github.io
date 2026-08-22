@@ -21,7 +21,7 @@
   "devDependencies": {
     "@prettier/plugin-xml": "3.4.2",
     "@types/node": "24.13.3",
-    "@vitest/coverage-v8": "4.1.10",
+    "@vitest/coverage-v8": "4.1.11",
     "husky": "9.1.7",
     "lint-staged": "17.3.0",
     "prettier": "3.9.6",
@@ -31,7 +31,7 @@
     "prettier-plugin-packagejson": "3.0.2",
     "tsx": "4.23.12",
     "vitepress": "1.6.4",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "packageManager": "npm@11.19.0",
   "engines": {

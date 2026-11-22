@@ -23,7 +23,7 @@
     "@types/node": "26.6.6",
     "@vitest/coverage-v8": "5.1.0",
     "husky": "9.1.7",
-    "lint-staged": "17.6.0",
+    "lint-staged": "17.6.1",
     "prettier": "3.10.1",
     "prettier-plugin-gherkin": "4.0.0",
     "prettier-plugin-java": "2.11.0",
